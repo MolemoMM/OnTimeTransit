@@ -11,8 +11,31 @@ services:
       - "8089:8089"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/user-service
-      SPRING_DATASOURCE_USERNAME: luk
-      SPRING_DATASOURCE_PASSWORD: SkorpionEVO47!
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 27711678
+
+
+  notification-service:
+    build:
+      context: ./backend/notification-service/notification-service
+    container_name: notification-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/notification-service
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 27711678
+ 
+  analytics-service:
+    build:
+      context: ./backend/analytics-service/analytics-service
+    container_name: analytics-service
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/analytics-service
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 27711678
    
 
   # Ticket Service
@@ -24,8 +47,8 @@ services:
       - "8087:8087"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/ticket-service
-      SPRING_DATASOURCE_USERNAME: luk
-      SPRING_DATASOURCE_PASSWORD: SkorpionEVO47!
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 27711678
 
   # Route Service
   route-service:
@@ -36,8 +59,8 @@ services:
       - "8084:8084"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/route-service
-      SPRING_DATASOURCE_USERNAME: luk
-      SPRING_DATASOURCE_PASSWORD: SkorpionEVO47!
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 27711678
 
   # Schedule Service
   schedule-service:
@@ -48,9 +71,8 @@ services:
       - "8085:8085"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/schedule-service
-      SPRING_DATASOURCE_USERNAME: luk
-      SPRING_DATASOURCE_PASSWORD: SkorpionEVO47!
-
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 27711678
   # pgAdmin (Optional: Only needed if you want to use it)
   pgadmin:
     image: dpage/pgadmin4
