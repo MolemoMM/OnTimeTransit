@@ -56,5 +56,3 @@ frontend/src/config/
 # Exclude sensitive files
 backend/**/src/main/resources/application.properties
 
-# Docker
-docker-compose.yml

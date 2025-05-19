@@ -14,8 +14,8 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
-                    bat 'npm install'
-                    bat 'npm run build'
+                    bat 'set CI= && npm install'
+                    bat 'set CI= && npm run build'
                 }
             }
         }
