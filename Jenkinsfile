@@ -1,16 +1,7 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
-    }
-
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
@@ -21,16 +12,16 @@ pipeline {
         }
         stage('Build & Deploy Services') {
             steps {
-                bat 'docker-compose -f %WORKSPACE%\\docker-compose.yml down'
-                bat 'docker-compose -f %WORKSPACE%\\docker-compose.yml build'
-                bat 'docker-compose -f %WORKSPACE%\\docker-compose.yml up -d'
+                bat 'docker-compose down'
+                bat 'docker-compose build'
+                bat 'docker-compose up -d'
             }
         }
     }
 
     post {
         always {
-            bat 'docker-compose -f %WORKSPACE%\\docker-compose.yml ps'
+            bat 'docker-compose ps'
         }
     }
 }

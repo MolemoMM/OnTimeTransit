@@ -5,13 +5,14 @@ import { ApiService } from "../../services/ApiService";
 import Navbar from "../Navbar";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import Analytics from "../Analytics";
 
 function AdminDashboard() {
   const [routes, setRoutes] = useState([]);
   const [tickets, setTickets] = useState([]);
   const [schedules, setSchedules] = useState([]);
-  const [analyticsData, setAnalyticsData] = useState({});
   const [notificationMessage, setNotificationMessage] = useState("");
+  const [analyticsData, setAnalyticsData] = useState({});
 
   const navigate = useNavigate();
 
@@ -135,6 +136,14 @@ function AdminDashboard() {
           <Button variant="contained" color="secondary" className="mt-3" onClick={handleSendNotification}>
             Send Notification
           </Button>
+        </div>
+
+        {/* Analytics Component */}
+        <div className="mt-5">
+          <Typography variant="h5" gutterBottom>
+            Analytics
+          </Typography>
+          <Analytics data={analyticsData} /> {/* Pass the analytics data to the Analytics component */}
         </div>
       </div>
     </div>

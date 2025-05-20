@@ -1,21 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { ApiService } from "../../services/ApiService";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 
 function ManageTickets({ onAnalyticsUpdate }) {
   const [tickets, setTickets] = useState([]);
   const [search, setSearch] = useState("");
   const [filteredTickets, setFilteredTickets] = useState([]);
-  const [ticket, setTicket] = useState({
-    passengerName: "",
-    email: "",
-    phoneNumber: "",
-    routeName: "",
-    travelDateTime: "",
-    seatNumber: "",
-  });
-  const navigate = useNavigate();
 
   useEffect(() => {
     ApiService.getTickets()
@@ -109,17 +99,6 @@ function ManageTickets({ onAnalyticsUpdate }) {
     link.href = url;
     link.download = "tickets.csv";
     link.click();
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    ApiService.bookTicket(ticket)
-      .then(() => {
-        toast.success("Ticket booked successfully!");
-        ApiService.sendNotification("A new ticket has been booked.");
-        navigate("/tickets");
-      })
-      .catch((error) => console.error("Error booking ticket:", error));
   };
 
   return (

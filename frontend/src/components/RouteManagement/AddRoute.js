@@ -76,24 +76,17 @@ function AddRoute() {
     </div>
   );
 }*/
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { ApiService } from "../../services/ApiService";
 import { toast } from "react-toastify";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Button,
   TextField,
 } from "@mui/material";
 import { useData } from "../../context/DataContext";
 
 function AddRoute() {
-  const { routes, setRoutes } = useData(); // Destructure both routes and setRoutes
+  const { setRoutes } = useData();
   const [newRoute, setNewRoute] = useState({
     startPoint: "",
     endPoint: "",
@@ -104,11 +97,7 @@ function AddRoute() {
   const [error, setError] = useState(null);
 
   // Fetch routes on component mount
-  useEffect(() => {
-    fetchRoutes();
-  }, []);
-
-  const fetchRoutes = async () => {
+  const fetchRoutes = useCallback(async () => {
     try {
       const data = await ApiService.getRoutes();
       setRoutes(data); // Ensure this updates the state
@@ -116,7 +105,11 @@ function AddRoute() {
       setError(err.message);
       toast.error("Failed to fetch routes.");
     }
-  };
+  }, [setRoutes]);
+
+  useEffect(() => {
+    fetchRoutes();
+  }, [fetchRoutes]);
 
   // Handle adding a new route
   const handleSubmit = async (e) => {
@@ -137,18 +130,6 @@ function AddRoute() {
       setError(err.message);
       toast.error("Failed to add route. Please try again.");
       console.error("Error adding route:", err);
-    }
-  };
-
-  // Handle deleting a route
-  const handleDeleteRoute = async (routeId) => {
-    try {
-      await ApiService.deleteRoute(routeId);
-      toast.success("Route deleted successfully!");
-      setRoutes((prevRoutes) => prevRoutes.filter((route) => route.id !== routeId)); // Optimistic update
-    } catch (err) {
-      setError(err.message);
-      toast.error("Failed to delete route.");
     }
   };
 

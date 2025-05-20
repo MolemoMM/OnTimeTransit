@@ -115,7 +115,7 @@ function ManageRoutes() {
                   </TableCell>
                 </TableRow>
               ))
-            ) : (
+            : (
               <TableRow>
                 <TableCell colSpan={6} align="center">
                   No routes available. Add a new route to get started.
@@ -131,7 +131,7 @@ function ManageRoutes() {
 
 export default ManageRoutes;*/
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { ApiService } from "../../services/ApiService";
 import { toast } from "react-toastify";
 import {
@@ -159,11 +159,8 @@ function ManageRoutes() {
   });
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchRoutes();
-  }, []);
-
-  const fetchRoutes = async () => {
+  // Wrap fetchRoutes in useCallback
+  const fetchRoutes = useCallback(async () => {
     try {
       const data = await ApiService.getRoutes();
       setRoutes(data);
@@ -171,7 +168,11 @@ function ManageRoutes() {
       setError(err.message);
       toast.error("Failed to fetch routes.");
     }
-  };
+  }, [setRoutes]);
+
+  useEffect(() => {
+    fetchRoutes();
+  }, [fetchRoutes]);
 
   const handleEditClick = (route) => {
     setEditingRouteId(route.id);

@@ -17,9 +17,7 @@ function UserDashboard() {
   });
   const [availableSeats, setAvailableSeats] = useState([]);
   const [showBookingForm, setShowBookingForm] = useState(false);
-  const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [bookingSuccess, setBookingSuccess] = useState(false);
   const navigate = useNavigate();
 
   // Fetch routes on component mount
@@ -44,14 +42,14 @@ function UserDashboard() {
 
   // Fetch available seats when a schedule is selected
   useEffect(() => {
-    if (selectedSchedule) {
+    if (selectedRoute) {
       setLoading(true);
-      ApiService.getAvailableSeats(selectedRoute.routeName, selectedSchedule.departureTime)
+      ApiService.getAvailableSeats(selectedRoute.routeName, selectedRoute.departureTime)
         .then((data) => setAvailableSeats(data))
         .catch(() => toast.error("Failed to fetch seat availability."))
         .finally(() => setLoading(false));
     }
-  }, [selectedSchedule]);
+  }, [selectedRoute]);
 
   // Monitor changes in localStorage and update schedules dynamically
   useEffect(() => {
@@ -65,17 +63,7 @@ function UserDashboard() {
 
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
-  }, [selectedRoute]);
-
-  const handleBookTicket = (schedule) => {
-    setSelectedSchedule(schedule);
-    setShowBookingForm(true);
-
-    // Automatically calculate ticket price based on route distance
-    const pricePerKm = 0.5; // Example: $0.5 per km
-    const calculatedPrice = selectedRoute.distance * pricePerKm;
-    setTicket((prev) => ({ ...prev, price: calculatedPrice }));
-  };
+  }, [selectedRoute, selectedRoute?.routeName]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -106,7 +94,7 @@ function UserDashboard() {
     const ticketData = {
       ...ticket,
       routeName: selectedRoute.routeName,
-      travelDateTime: selectedSchedule.departureTime,
+      travelDateTime: selectedRoute.departureTime,
     };
 
     setLoading(true);
@@ -114,7 +102,6 @@ function UserDashboard() {
       .then(() => {
         toast.success("Ticket booked successfully!");
         setShowBookingForm(false);
-        setBookingSuccess(true);
         setTicket({
           passengerName: "",
           email: "",
@@ -124,37 +111,12 @@ function UserDashboard() {
         });
 
         // Refresh available seats
-        ApiService.getAvailableSeats(selectedRoute.routeName, selectedSchedule.departureTime)
+        ApiService.getAvailableSeats(selectedRoute.routeName, selectedRoute.departureTime)
           .then((data) => setAvailableSeats(data))
           .catch(() => toast.error("Failed to refresh seat availability."));
       })
       .catch(() => toast.error("Failed to book ticket. Please try again."))
       .finally(() => setLoading(false));
-  };
-
-  // Simulate schedule updates for the selected route
-  const simulateScheduleUpdate = () => {
-    if (selectedRoute) {
-      const simulatedSchedule = {
-        id: 999, // Temporary ID for the simulated schedule
-        departureTime: "14:27:00",
-        arrivalTime: "13:27:00",
-        frequency: "Weekly",
-      };
-
-      // Check if the schedule already exists in the state
-      const scheduleExists = schedules.some(
-        (schedule) =>
-          schedule.departureTime === simulatedSchedule.departureTime &&
-          schedule.arrivalTime === simulatedSchedule.arrivalTime &&
-          schedule.frequency === simulatedSchedule.frequency
-      );
-
-      if (!scheduleExists) {
-        setSchedules((prevSchedules) => [...prevSchedules, simulatedSchedule]);
-        toast.success("Simulated schedule update applied.");
-      }
-    }
   };
 
   // Fetch schedules for the selected route
