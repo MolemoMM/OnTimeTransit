@@ -41,6 +41,8 @@ pipeline {
             steps {
                 bat 'docker-compose down --remove-orphans'
                 bat 'docker container prune -f'
+                // Remove all possible conflicting containers by name
+                bat 'docker rm -f user-service notification-service analytics-service ticket-service route-service schedule-service frontend pgadmin || exit 0'
                 bat 'docker-compose build'
                 bat 'docker-compose up -d'
             }
