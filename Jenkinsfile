@@ -39,7 +39,8 @@ pipeline {
         }
         stage('Build & Deploy Services') {
             steps {
-                bat 'docker-compose down'
+                bat 'docker-compose down --remove-orphans'
+                bat 'docker container prune -f'
                 bat 'docker-compose build'
                 bat 'docker-compose up -d'
             }
