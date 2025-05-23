@@ -40,6 +40,15 @@ function BookTicket() {
     }
   }, [ticket.routeId, ticket.travelDateTime, ticket.routeName]);
 
+  // Update available seats when routeName changes
+  useEffect(() => {
+    if (ticket.routeId && ticket.travelDateTime) {
+      ApiService.getAvailableSeats(ticket.routeName, ticket.travelDateTime)
+        .then((data) => setAvailableSeats(data))
+        .catch((error) => toast.error("Failed to fetch seat availability."));
+    }
+  }, [ticket.routeName]);
+
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
