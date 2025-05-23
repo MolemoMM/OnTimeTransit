@@ -38,7 +38,7 @@ function BookTicket() {
         .then((data) => setAvailableSeats(data))
         .catch((error) => toast.error("Failed to fetch seat availability."));
     }
-  }, [ticket.routeId, ticket.travelDateTime, ticket.routeName]);
+  }, [ticket.routeId, ticket.travelDateTime]);
 
   // Update available seats when routeName changes
   useEffect(() => {

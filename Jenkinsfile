@@ -10,8 +10,8 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
-                    bat 'set CI= && npm install'
-                    bat 'set CI= && npm run build'
+                    bat 'npm install'
+                    bat 'npm run build'
                 }
             }
         }
