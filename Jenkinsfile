@@ -2,6 +2,11 @@ pipeline {
     agent any
 
     stages {
+        stage('Update Code') {
+            steps {
+                bat 'git pull origin main'
+            }
+        }
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
