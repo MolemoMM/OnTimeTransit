@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  # User Service
+  user-service:
+    build:
+      context: ./backend/user-service/user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    ports:
+      - "8089:8089"
+    environment:
+      SPRING_DATASOURCE_URL: ${USER_SERVICE_DB}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+
+  notification-service:
+    build:
+      context: ./backend/notification-service/notification-service
+    container_name: notification-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: ${NOTIFICATION_SERVICE_DB}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+
+  analytics-service:
+    build:
+      context: ./backend/analytics-service/analytics-service
+    container_name: analytics-service
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_DATASOURCE_URL: ${ANALYTICS_SERVICE_DB}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+
+  # Ticket Service
+  ticket-service:
+    build:
+      context: ./backend/ticket-service/ticket-service
+    container_name: ticket-service
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_DATASOURCE_URL: ${TICKET_SERVICE_DB}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+
+  # Route Service
+  route-service:
+    build:
+      context: ./backend/route-service/route-service
+    container_name: route-service
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: ${ROUTE_SERVICE_DB}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+
+  # Schedule Service
+  schedule-service:
+    build:
+      context: ./backend/schedule-service/schedule-service
+    container_name: schedule-service
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_DATASOURCE_URL: ${SCHEDULE_SERVICE_DB}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+  # pgAdmin (Optional: Only needed if you want to use it)
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+
+volumes:
+  pgadmin_data:
