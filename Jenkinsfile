@@ -7,6 +7,28 @@ pipeline {
                 bat 'git pull origin main'
             }
         }
+        stage('Build Backend JARs') {
+            steps {
+                dir('backend/user-service/user-service') {
+                    bat 'mvn clean package -DskipTests'
+                }
+                dir('backend/notification-service/notification-service') {
+                    bat 'mvn clean package -DskipTests'
+                }
+                dir('backend/analytics-service/analytics-service') {
+                    bat 'mvn clean package -DskipTests'
+                }
+                dir('backend/ticket-service/ticket-service') {
+                    bat 'mvn clean package -DskipTests'
+                }
+                dir('backend/route-service/route-service') {
+                    bat 'mvn clean package -DskipTests'
+                }
+                dir('backend/schedule-service/schedule-service') {
+                    bat 'mvn clean package -DskipTests'
+                }
+            }
+        }
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
