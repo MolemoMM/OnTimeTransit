@@ -23,7 +23,7 @@ import AssignExistingSchedule from "./components/BusSchedule/AssignExistingSched
 import { AuthProvider } from "./context/AuthContext";
 import { DataProvider } from "./context/DataContext";
 import PrivateRoute from "./utils/PrivateRoute";
-import ErrorBoundary from "./components/ErrorBoundary";
+
 
 import './App.css';
 
@@ -33,140 +33,136 @@ function App() {
       <AuthProvider>
         <DataProvider>
           <div className="App">
-            <div className="container">
-              <ErrorBoundary>
-                <Routes>
-                  {/* Landing Page */}
-                  <Route path="/" element={<LandingPage />} />
+            <Routes>
+              {/* Landing Page */}
+              <Route path="/" element={<LandingPage />} />
 
-                  {/* Login Page */}
-                  <Route path="/login" element={<Login />} />
+              {/* Login Page */}
+              <Route path="/login" element={<Login />} />
 
-                  {/* Register Page */}
-                  <Route path="/register" element={<Register />} />
+              {/* Register Page */}
+              <Route path="/register" element={<Register />} />
 
-                  {/* Admin Dashboard Routes */}
-                  <Route
-                    path="/admin"
-                    element={
-                      <PrivateRoute allowedRoles={["ADMIN"]}>
-                        <AdminDashboard />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/schedules"
-                    element={
-                      <PrivateRoute allowedRoles={["ADMIN"]}>
-                        <BusScheduleList />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/schedules/add"
-                    element={
-                      <PrivateRoute allowedRoles={["ADMIN"]}>
-                        <AddSchedule />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/tickets"
-                    element={
-                      <PrivateRoute allowedRoles={["ADMIN"]}>
-                        <ManageTickets />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/routes"
-                    element={
-                      <PrivateRoute allowedRoles={["ADMIN"]}>
-                        <ManageRoutes />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/routes/add"
-                    element={
-                      <PrivateRoute allowedRoles={["ADMIN"]}>
-                        <AddRoute />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/schedules/assign"
-                    element={
-                      <PrivateRoute allowedRoles={["ADMIN"]}>
-                        <AssignSchedule />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/schedules/assign-existing"
-                    element={
-                      <PrivateRoute allowedRoles={["ADMIN"]}>
-                        <AssignExistingSchedule />
-                      </PrivateRoute>
-                    }
-                  />
+              {/* Admin Dashboard Routes */}
+              <Route
+                path="/admin"
+                element={
+                  <PrivateRoute allowedRoles={["ADMIN"]}>
+                    <AdminDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/schedules"
+                element={
+                  <PrivateRoute allowedRoles={["ADMIN"]}>
+                    <BusScheduleList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/schedules/add"
+                element={
+                  <PrivateRoute allowedRoles={["ADMIN"]}>
+                    <AddSchedule />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/tickets"
+                element={
+                  <PrivateRoute allowedRoles={["ADMIN"]}>
+                    <ManageTickets />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/routes"
+                element={
+                  <PrivateRoute allowedRoles={["ADMIN"]}>
+                    <ManageRoutes />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/routes/add"
+                element={
+                  <PrivateRoute allowedRoles={["ADMIN"]}>
+                    <AddRoute />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/schedules/assign"
+                element={
+                  <PrivateRoute allowedRoles={["ADMIN"]}>
+                    <AssignSchedule />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/schedules/assign-existing"
+                element={
+                  <PrivateRoute allowedRoles={["ADMIN"]}>
+                    <AssignExistingSchedule />
+                  </PrivateRoute>
+                }
+              />
 
-                  {/* User Dashboard Routes */}
-                  <Route
-                    path="/user"
-                    element={
-                      <PrivateRoute allowedRoles={["USER"]}>
-                        <UserDashboard />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/user/tickets"
-                    element={
-                      <PrivateRoute allowedRoles={["USER"]}>
-                        <TicketList />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/user/book-ticket"
-                    element={
-                      <PrivateRoute allowedRoles={["USER"]}>
-                        <BookTicket />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/user/routes"
-                    element={
-                      <PrivateRoute allowedRoles={["USER"]}>
-                        <RouteList />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/user/routes/:routeId/schedules"
-                    element={
-                      <PrivateRoute allowedRoles={["USER"]}>
-                        <ViewSchedules />
-                      </PrivateRoute>
-                    }
-                  />
+              {/* User Dashboard Routes */}
+              <Route
+                path="/user"
+                element={
+                  <PrivateRoute allowedRoles={["USER"]}>
+                    <UserDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/user/tickets"
+                element={
+                  <PrivateRoute allowedRoles={["USER"]}>
+                    <TicketList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/user/book-ticket"
+                element={
+                  <PrivateRoute allowedRoles={["USER"]}>
+                    <BookTicket />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/user/routes"
+                element={
+                  <PrivateRoute allowedRoles={["USER"]}>
+                    <RouteList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/user/routes/:routeId/schedules"
+                element={
+                  <PrivateRoute allowedRoles={["USER"]}>
+                    <ViewSchedules />
+                  </PrivateRoute>
+                }
+              />
 
-                  {/* Additional Routes */}
-                  <Route path="/schedules" element={<BusScheduleList />} />
-                  <Route path="/schedules/add" element={<AddSchedule />} />
+              {/* Additional Routes */}
+              <Route path="/schedules" element={<BusScheduleList />} />
+              <Route path="/schedules/add" element={<AddSchedule />} />
 
-                  {/* Route List */}
-                  <Route path="/routes" element={<RouteList />} />
+              {/* Route List */}
+              <Route path="/routes" element={<RouteList />} />
 
-                  {/* Default Redirect */}
-                  <Route path="*" element={<Navigate to="/" />} />
-                </Routes>
-              </ErrorBoundary>
-            </div>
-            <ToastContainer position="top-right" autoClose={3000} />
+              {/* Default Redirect */}
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
           </div>
+          <ToastContainer position="top-right" autoClose={3000} />
         </DataProvider>
       </AuthProvider>
     </Router>
