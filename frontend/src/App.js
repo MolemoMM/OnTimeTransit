@@ -45,66 +45,10 @@ function App() {
 
               {/* Admin Dashboard Routes */}
               <Route
-                path="/admin"
+                path="/admin/*"
                 element={
                   <PrivateRoute allowedRoles={["ADMIN"]}>
                     <AdminDashboard />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/admin/schedules"
-                element={
-                  <PrivateRoute allowedRoles={["ADMIN"]}>
-                    <BusScheduleList />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/admin/schedules/add"
-                element={
-                  <PrivateRoute allowedRoles={["ADMIN"]}>
-                    <AddSchedule />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/admin/tickets"
-                element={
-                  <PrivateRoute allowedRoles={["ADMIN"]}>
-                    <ManageTickets />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/admin/routes"
-                element={
-                  <PrivateRoute allowedRoles={["ADMIN"]}>
-                    <ManageRoutes />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/admin/routes/add"
-                element={
-                  <PrivateRoute allowedRoles={["ADMIN"]}>
-                    <AddRoute />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/admin/schedules/assign"
-                element={
-                  <PrivateRoute allowedRoles={["ADMIN"]}>
-                    <AssignSchedule />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/admin/schedules/assign-existing"
-                element={
-                  <PrivateRoute allowedRoles={["ADMIN"]}>
-                    <AssignExistingSchedule />
                   </PrivateRoute>
                 }
               />

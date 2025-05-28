@@ -146,6 +146,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useData } from "../../context/DataContext";
+import "./stylings/ManageRoutes.css";
 
 function ManageRoutes() {
   const { routes, setRoutes } = useData();
@@ -250,19 +251,19 @@ function ManageRoutes() {
       <h1>Manage Routes</h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Start Point</TableCell>
-              <TableCell>End Point</TableCell>
-              <TableCell>Intermediate Stops</TableCell>
-              <TableCell>Distance (km)</TableCell>
-              <TableCell>Estimated Travel Time</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+      <div className="admin-routes-table-wrapper">
+        <table className="admin-routes-table">
+          <thead>
+            <tr>
+              <th>Start Point</th>
+              <th>End Point</th>
+              <th>Intermediate Stops</th>
+              <th>Distance (km)</th>
+              <th>Estimated Travel Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
             {routes.length > 0 ? (
               routes.map((route) => (
                 <TableRow key={route.id}>
@@ -313,15 +314,18 @@ function ManageRoutes() {
                         <Button
                           variant="contained"
                           color="primary"
+                          className="btn"
                           onClick={handleSaveEdit}
+                          style={{ marginRight: 8, minWidth: 70 }}
                         >
                           Save
                         </Button>
                         <Button
                           variant="contained"
                           color="secondary"
+                          className="btn"
                           onClick={handleCancelEdit}
-                          className="ms-2"
+                          style={{ minWidth: 70 }}
                         >
                           Cancel
                         </Button>
@@ -338,15 +342,18 @@ function ManageRoutes() {
                         <Button
                           variant="contained"
                           color="primary"
+                          className="btn"
                           onClick={() => handleEditClick(route)}
+                          style={{ marginRight: 8, minWidth: 70 }}
                         >
                           Edit
                         </Button>
                         <Button
                           variant="contained"
                           color="error"
+                          className="btn"
                           onClick={() => handleDeleteRoute(route.id)}
-                          className="ms-2"
+                          style={{ minWidth: 70 }}
                         >
                           Delete
                         </Button>
@@ -362,9 +369,9 @@ function ManageRoutes() {
                 </TableCell>
               </TableRow>
             )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

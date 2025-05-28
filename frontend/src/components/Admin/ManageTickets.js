@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ApiService } from "../../services/ApiService";
 import { toast } from "react-toastify";
+import "./stylings/ManageTickets.css";
 
 function ManageTickets({ onAnalyticsUpdate }) {
   const [tickets, setTickets] = useState([]);
@@ -36,14 +37,13 @@ function ManageTickets({ onAnalyticsUpdate }) {
     ApiService.cancelTicket(id)
       .then(() => {
         toast.success("Ticket canceled successfully!");
-        // Update the ticket status in the local state instead of removing it
-        setTickets((prev) => 
-          prev.map((ticket) => 
+        setTickets((prev) =>
+          prev.map((ticket) =>
             ticket.id === id ? { ...ticket, status: "Canceled" } : ticket
           )
         );
-        setFilteredTickets((prev) => 
-          prev.map((ticket) => 
+        setFilteredTickets((prev) =>
+          prev.map((ticket) =>
             ticket.id === id ? { ...ticket, status: "Canceled" } : ticket
           )
         );
@@ -55,12 +55,9 @@ function ManageTickets({ onAnalyticsUpdate }) {
   };
 
   const deleteTicket = (id) => {
-    // Add this method to ApiService.js
-    // This is a placeholder - you'll need to implement the actual API call
     ApiService.deleteTicket(id)
       .then(() => {
         toast.success("Ticket deleted successfully!");
-        // Remove the ticket from the local state
         setTickets((prev) => prev.filter((ticket) => ticket.id !== id));
         setFilteredTickets((prev) => prev.filter((ticket) => ticket.id !== id));
       })
@@ -102,7 +99,7 @@ function ManageTickets({ onAnalyticsUpdate }) {
   };
 
   return (
-    <div className="container mt-5">
+    <div className="admin-table-responsive">
       <h2>Manage Tickets</h2>
       <div className="mb-3">
         <input
@@ -116,50 +113,124 @@ function ManageTickets({ onAnalyticsUpdate }) {
       <button className="btn btn-success mb-3" onClick={exportTickets}>
         Export Tickets
       </button>
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th>Passenger Name</th>
-            <th>Email</th>
-            <th>Phone Number</th>
-            <th>Route Name</th>
-            <th>Travel Date</th>
-            <th>Seat Number</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredTickets.map((ticket) => (
-            <tr key={ticket.id}>
-              <td>{ticket.passengerName}</td>
-              <td>{ticket.email}</td>
-              <td>{ticket.phoneNumber}</td>
-              <td>{ticket.routeName}</td>
-              <td>{new Date(ticket.travelDateTime).toLocaleString()}</td>
-              <td>{ticket.seatNumber}</td>
-              <td>{ticket.status}</td>
-              <td>
-                {ticket.status !== "Canceled" ? (
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => cancelTicket(ticket.id)}
-                  >
-                    Cancel
-                  </button>
-                ) : (
-                  <button
-                    className="btn btn-dark btn-sm"
-                    onClick={() => deleteTicket(ticket.id)}
-                  >
-                    Delete
-                  </button>
-                )}
-              </td>
+      <div className="admin-table-wrapper">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>Passenger Name</th>
+              <th>Email</th>
+              <th>Phone Number</th>
+              <th>Route Name</th>
+              <th>Travel Date</th>
+              <th>Seat Number</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredTickets.map((ticket, idx) => (
+              <tr
+                key={ticket.id}
+                style={{
+                  backgroundColor:
+                    ticket.status === "Canceled"
+                      ? "#f8d7da"
+                      : idx % 2 === 0
+                      ? "rgba(0,230,255,0.04)"
+                      : "inherit",
+                }}
+              >
+                <td
+                  title={ticket.passengerName}
+                  style={{
+                    maxWidth: 120,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {ticket.passengerName}
+                </td>
+                <td
+                  title={ticket.email}
+                  style={{
+                    maxWidth: 140,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {ticket.email}
+                </td>
+                <td
+                  title={ticket.phoneNumber}
+                  style={{
+                    maxWidth: 100,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {ticket.phoneNumber}
+                </td>
+                <td
+                  title={ticket.routeName}
+                  style={{
+                    maxWidth: 140,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {ticket.routeName}
+                </td>
+                <td
+                  style={{
+                    maxWidth: 120,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {new Date(ticket.travelDateTime).toLocaleString()}
+                </td>
+                <td>{ticket.seatNumber}</td>
+                <td>{ticket.status}</td>
+                <td>
+                  {ticket.status !== "Canceled" ? (
+                    <button
+                      className="btn btn-danger btn-sm"
+                      style={{
+                        marginRight: 4,
+                        padding: "4px 10px",
+                        borderRadius: 12,
+                        fontSize: "0.85rem",
+                      }}
+                      onClick={() => cancelTicket(ticket.id)}
+                    >
+                      Cancel
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-dark btn-sm"
+                      style={{
+                        marginRight: 4,
+                        padding: "4px 10px",
+                        borderRadius: 12,
+                        fontSize: "0.85rem",
+                      }}
+                      onClick={() => deleteTicket(ticket.id)}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {/* ...pagination and dialogs... */}
     </div>
   );
 }
