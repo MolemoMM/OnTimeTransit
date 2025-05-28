@@ -14,15 +14,15 @@ h1, h2, h3 {
 }
 
 .App {
-  text-align: center;
-  font-family: 'Roboto', sans-serif;
-  background-color: #f8f9fa;
   min-height: 100vh;
+  width: 100vw;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-start;
-  padding: 20px;
 }
 
 .App-logo {
@@ -297,4 +297,47 @@ h2 {
 .chart {
   width: 45%;
   min-width: 300px;
+}
+
+/* Navbar fixes for overlap and red/black theme */
+.MuiAppBar-root {
+  background: linear-gradient(90deg, #18181b 0%, #2d0b0b 100%) !important;
+  color: #fff !important;
+  z-index: 1201; /* Above drawers/sidebars */
+}
+
+.MuiToolbar-root {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+  gap: 8px;
+}
+
+.MuiButton-root {
+  color: #fff !important;
+  font-weight: 600;
+  border-radius: 18px !important;
+  margin-left: 8px !important;
+  transition: background 0.2s, color 0.2s;
+}
+
+.MuiButton-root.active,
+.MuiButton-root[aria-current="page"],
+.MuiButton-root:hover {
+  background: linear-gradient(90deg, #ff3b3f 0%, #18181b 100%) !important;
+  color: #ff3b3f !important;
+}
+
+@media (max-width: 600px) {
+  .MuiToolbar-root {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .MuiButton-root {
+    margin-left: 0 !important;
+    margin-top: 4px !important;
+  }
 }
