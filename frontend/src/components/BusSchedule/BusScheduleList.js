@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ApiService } from "../../services/ApiService";
 import { Link } from "react-router-dom";
+import "./stylings/BusScheduleList.css";
 
 function BusScheduleList() {
   const [schedules, setSchedules] = useState([]);
@@ -24,35 +25,37 @@ function BusScheduleList() {
       <Link to="/schedules/add" className="btn btn-primary mb-3">
         Add Schedule
       </Link>
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Route Name</th>
-            <th>Departure</th>
-            <th>Arrival</th>
-            <th>Frequency</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {schedules.map((schedule) => (
-            <tr key={schedule.id}>
-              <td>{schedule.routeName}</td>
-              <td>{schedule.departureTime}</td>
-              <td>{schedule.arrivalTime}</td>
-              <td>{schedule.frequency}</td>
-              <td>
-                <button
-                  className="btn btn-danger"
-                  onClick={() => deleteSchedule(schedule.id)}
-                >
-                  Delete
-                </button>
-              </td>
+      <div className="schedules-table-wrapper">
+        <table className="schedules-table">
+          <thead>
+            <tr>
+              <th>Route Name</th>
+              <th>Departure</th>
+              <th>Arrival</th>
+              <th>Frequency</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {schedules.map((schedule) => (
+              <tr key={schedule.id}>
+                <td title={schedule.routeName}>{schedule.routeName}</td>
+                <td>{schedule.departureTime}</td>
+                <td>{schedule.arrivalTime}</td>
+                <td>{schedule.frequency}</td>
+                <td>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => deleteSchedule(schedule.id)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

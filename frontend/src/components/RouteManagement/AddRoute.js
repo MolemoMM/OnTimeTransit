@@ -84,9 +84,10 @@ import {
   TextField,
 } from "@mui/material";
 import { useData } from "../../context/DataContext";
+import "./stylings/AddRoute.css";
 
 function AddRoute() {
-  const { setRoutes } = useData();
+  const { setRoutes, routes } = useData();
   const [newRoute, setNewRoute] = useState({
     startPoint: "",
     endPoint: "",
@@ -130,6 +131,23 @@ function AddRoute() {
       setError(err.message);
       toast.error("Failed to add route. Please try again.");
       console.error("Error adding route:", err);
+    }
+  };
+
+  // Add these handlers to avoid ESLint errors
+  const handleEdit = (id) => {
+    // TODO: Implement edit functionality
+    toast.info("Edit functionality coming soon!");
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await ApiService.deleteRoute(id);
+      toast.success("Route deleted successfully!");
+      await fetchRoutes();
+    } catch (err) {
+      toast.error("Failed to delete route.");
+      console.error("Error deleting route:", err);
     }
   };
 
@@ -198,7 +216,47 @@ function AddRoute() {
       </form>
 
       {/* Routes Table */}
-      
+      <div className="add-route-table-wrapper">
+        <table className="add-route-table" aria-label="Routes Table">
+          <thead>
+            <tr>
+              <th>Start Point<span style={{ color: "#ff5252" }}>*</span></th>
+              <th>End Point<span style={{ color: "#ff5252" }}>*</span></th>
+              <th>Intermediate Stops</th>
+              <th>Distance (km)<span style={{ color: "#ff5252" }}>*</span></th>
+              <th>Estimated Travel Time<span style={{ color: "#ff5252" }}>*</span></th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {routes.map((route) => (
+              <tr key={route.id}>
+                <td title={route.startPoint}>{route.startPoint}</td>
+                <td title={route.endPoint}>{route.endPoint}</td>
+                <td title={route.intermediateStops}>{route.intermediateStops}</td>
+                <td>{route.distance}</td>
+                <td>{route.estimatedTravelTime}</td>
+                <td>
+                  <button
+                    className="btn btn-primary route-action-btn"
+                    onClick={() => handleEdit(route.id)}
+                    aria-label="Edit Route"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn btn-danger route-action-btn"
+                    onClick={() => handleDelete(route.id)}
+                    aria-label="Delete Route"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

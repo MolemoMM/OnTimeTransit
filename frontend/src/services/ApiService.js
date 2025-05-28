@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 const ROUTE_SERVICE_URL = "http://localhost:8084/api/routes";
 const SCHEDULE_SERVICE_URL = "http://localhost:8085/api/schedules";
 const TICKET_SERVICE_URL = "http://localhost:8087/api/tickets";
-const USER_SERVICE_URL = "http://localhost:8089/api/auth";
+const USER_SERVICE_URL = "http://localhost:8089/api/users"; // <-- Use the correct port for user-service
 const NOTIFICATION_SERVICE_URL = "http://localhost:8085/api/notifications";
 const ANALYTICS_SERVICE_URL = "http://localhost:8086/api/analytics";
 
@@ -121,6 +121,16 @@ const ApiService = {
   // Authentication
   login: (credentials) => axiosInstance.post(`${USER_SERVICE_URL}/login`, credentials).then((res) => res.data).catch(handleApiError),
   register: (user) => axiosInstance.post(`${USER_SERVICE_URL}/register`, user).then((res) => res.data).catch(handleApiError),
+  getAllUsers: () =>
+  axiosInstance
+    .get(`${USER_SERVICE_URL}`)
+    .then((res) => res.data)
+    .catch(handleApiError),
+  deleteUser: (id) =>
+  axiosInstance
+    .delete(`${USER_SERVICE_URL}/${id}`)
+    .then((res) => res.data)
+    .catch(handleApiError),
 
   // Notifications
   sendNotification: (message) =>
