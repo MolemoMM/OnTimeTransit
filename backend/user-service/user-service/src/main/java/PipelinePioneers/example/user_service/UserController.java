@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -54,5 +55,17 @@ public class UserController {
 
         userRepository.save(user);
         return ResponseEntity.ok(user);
+    }
+
+    // Get all users
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        userRepository.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 }
