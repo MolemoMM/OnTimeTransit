@@ -2,6 +2,11 @@ pipeline {
     agent any
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
         stage('Update Code') {
             steps {
                 bat 'git clone --branch main https://github.com/MolemoMM/OnTimeTransit.git .'
