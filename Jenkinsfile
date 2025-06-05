@@ -2,16 +2,9 @@ pipeline {
     agent any
 
     stages {
-        stage('Clean Workspace') {
-            steps {
-                cleanWs()
-            }
-        }
         stage('Update Code') {
             steps {
-                bat 'git fetch origin'
-                bat 'git checkout -B main origin/main'
-                bat 'git pull origin main'
+                bat 'git clone --branch main https://github.com/MolemoMM/OnTimeTransit.git .'
             }
         }
         stage('Build Backend JARs') {
