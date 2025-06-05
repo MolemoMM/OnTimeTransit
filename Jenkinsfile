@@ -2,6 +2,12 @@ pipeline {
     agent any
 
     stages {
+        stage('Checkout Code') {
+            steps {
+                cleanWs()
+                bat 'git clone https://github.com/your-org/your-repo.git .'
+            }
+        }
         stage('Update Code') {
             steps {
                 bat 'git pull origin main'
@@ -52,6 +58,7 @@ pipeline {
     post {
         always {
             bat 'docker-compose ps'
+            bat 'git status'
         }
     }
 }
