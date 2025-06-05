@@ -4,6 +4,8 @@ pipeline {
     stages {
         stage('Update Code') {
             steps {
+                bat 'git fetch origin'
+                bat 'git checkout main'
                 bat 'git pull origin main'
             }
         }
