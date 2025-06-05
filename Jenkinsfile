@@ -10,7 +10,7 @@ pipeline {
         stage('Update Code') {
             steps {
                 bat 'git fetch origin'
-                bat 'git checkout main'
+                bat 'git checkout -B main origin/main'
                 bat 'git pull origin main'
             }
         }
