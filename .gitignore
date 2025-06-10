@@ -54,6 +54,6 @@ frontend/src/assets/
 frontend/src/config/
 
 # Exclude sensitive files
-backend/**/src/main/resources/application.properties
+#backend/**/src/main/resources/application.properties
 
 
