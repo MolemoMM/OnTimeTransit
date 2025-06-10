@@ -7,11 +7,6 @@ pipeline {
                 cleanWs()
             }
         }
-        stage('Update Code') {
-            steps {
-                bat 'git clone --branch main https://github.com/MolemoMM/OnTimeTransit.git .'
-            }
-        }
         stage('Build Backend JARs') {
             steps {
                 dir('backend/user-service/user-service') {
