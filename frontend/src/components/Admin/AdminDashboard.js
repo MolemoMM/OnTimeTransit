@@ -62,6 +62,17 @@ function AdminDashboard() {
       .catch(() => toast.error("Failed to send notification."));
   };
 
+  // Transform analyticsData for the Analytics component
+  const analyticsChartData = {
+    labels: ["Total Tickets", "Total Routes", "Total Schedules", "Total Users"],
+    values: [
+      analyticsData.totalTickets || tickets.length || 0,
+      analyticsData.totalRoutes || routes.length || 0,
+      analyticsData.totalSchedules || schedules.length || 0,
+      analyticsData.totalUsers || users.length || 0,
+    ],
+  };
+
   return (
     <div className="admin-dashboard-root">
       <Navbar />
@@ -194,7 +205,7 @@ function AdminDashboard() {
               <Route path="routes/add" element={<AddRoute />} />
               <Route path="schedules" element={<BusScheduleList />} />
               <Route path="schedules/assign" element={<AssignSchedule />} />
-              <Route path="analytics" element={<Analytics />} />
+              <Route path="analytics" element={<Analytics data={analyticsChartData} />} />
               <Route path="users" element={<ViewUsers />} />
               {/* Add more admin routes as needed */}
             </Routes>
