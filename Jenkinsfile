@@ -47,6 +47,11 @@ pipeline {
                 bat 'docker-compose up -d'
             }
         }
+        stage('Debug Workspace') {
+            steps {
+                bat 'dir backend\\user-service\\user-service'
+            }
+        }
     }
 
     post {
