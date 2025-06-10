@@ -9,10 +9,11 @@ pipeline {
         }
         stage('Build Backend JARs') {
             steps {
-                dir('backend/user-service/user-service') {
+               
+                dir('backend/notification-service/notification-service') {
                     bat 'mvn clean package -DskipTests'
                 }
-                dir('backend/notification-service/notification-service') {
+                 dir('backend/user-service/user-service') {
                     bat 'mvn clean package -DskipTests'
                 }
                 dir('backend/analytics-service/analytics-service') {
