@@ -48,9 +48,14 @@ pipeline {
                 bat 'docker-compose up -d'
             }
         }
-        stage('Debug Workspace') {
+        stage('Debug All Service Workspaces') {
             steps {
                 bat 'dir backend\\user-service\\user-service'
+                bat 'dir backend\\notification-service\\notification-service'
+                bat 'dir backend\\analytics-service\\analytics-service'
+                bat 'dir backend\\ticket-service\\ticket-service'
+                bat 'dir backend\\route-service\\route-service'
+                bat 'dir backend\\schedule-service\\schedule-service'
             }
         }
     }
