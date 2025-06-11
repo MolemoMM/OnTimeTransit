@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_CONTEXT = 'desktop-linux'
+    }
+
     stages {
         stage('Clean Workspace') {
             steps {
