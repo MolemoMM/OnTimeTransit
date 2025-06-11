@@ -10,11 +10,10 @@ pipeline {
         }
         stage('Build Backend JARs') {
             steps {
-               
                 dir('backend/notification-service/notification-service') {
                     bat 'mvn clean package -DskipTests'
                 }
-                 dir('backend/user-service/user-service') {
+                dir('backend/user-service/user-service') {
                     bat 'mvn clean package -DskipTests'
                 }
                 dir('backend/analytics-service/analytics-service') {
@@ -57,6 +56,11 @@ pipeline {
                 bat 'dir backend\\ticket-service\\ticket-service'
                 bat 'dir backend\\route-service\\route-service'
                 bat 'dir backend\\schedule-service\\schedule-service'
+            }
+        }
+        stage('Docker Info') {
+            steps {
+                bat 'docker info'
             }
         }
     }
