@@ -3,21 +3,19 @@ version: '3.8'
 services:
   # User Service
   user-service:
-    build:
-      context: ./backend/user-service/user-service
-      dockerfile: Dockerfile
+    image: molemomm/user-service:latest
     container_name: user-service
     ports:
       - "8089:8089"
     environment:
-      SPRING_DATASOURCE_URL: ${USER_SERVICE_DB}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_DATASOURCE_URL: ${USER_SERVICE_DB}
     init: true
 
+  # Notification Service
   notification-service:
-    build:
-      context: ./backend/notification-service/notification-service
+    image: molemomm/notification-service:latest
     container_name: notification-service
     ports:
       - "8083:8083"
@@ -27,9 +25,9 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       init: true
 
+  # Analytics Service
   analytics-service:
-    build:
-      context: ./backend/analytics-service/analytics-service
+    image: molemomm/analytics-service:latest
     container_name: analytics-service
     ports:
       - "8086:8086"
@@ -41,8 +39,7 @@ services:
 
   # Ticket Service
   ticket-service:
-    build:
-      context: ./backend/ticket-service/ticket-service
+    image: molemomm/ticket-service:latest
     container_name: ticket-service
     ports:
       - "8087:8087"
@@ -54,8 +51,7 @@ services:
 
   # Route Service
   route-service:
-    build:
-      context: ./backend/route-service/route-service
+    image: molemomm/route-service:latest
     container_name: route-service
     ports:
       - "8084:8084"
@@ -67,8 +63,7 @@ services:
 
   # Schedule Service
   schedule-service:
-    build:
-      context: ./backend/schedule-service/schedule-service
+    image: molemomm/schedule-service:latest
     container_name: schedule-service
     ports:
       - "8085:8085"
@@ -77,7 +72,8 @@ services:
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       init: true
-  # pgAdmin (Optional: Only needed if you want to use it)
+
+  # pgAdmin (Optional)
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
@@ -92,9 +88,7 @@ services:
 
   # Frontend
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: molemomm/frontend:latest
     container_name: frontend
     ports:
       - "3000:3000"
