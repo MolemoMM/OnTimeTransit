@@ -8,6 +8,14 @@ pipeline {
                 checkout scm
             }
         }
+        stage('Copy .env to Workspace') {
+            steps {
+                // Copy .env from your project root to the Jenkins workspace
+                bat 'copy C:\\Users\\mamas\\OneDrive\\Documents\\wipro\\OnTimeTransit\\.env .env'
+                bat 'dir'
+                bat 'type .env'
+            }
+        }
         stage('Deploy Services') {
             steps {
                 bat 'docker-compose down --remove-orphans'
