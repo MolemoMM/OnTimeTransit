@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_CONTEXT = 'desktop-linux'
-    }
-
     stages {
         stage('Clean Workspace') {
             steps {
@@ -65,6 +61,11 @@ pipeline {
         stage('Docker Info') {
             steps {
                 bat 'docker info'
+            }
+        }
+        stage('Set Docker Context') {
+            steps {
+                bat 'docker context use desktop-linux'
             }
         }
     }
