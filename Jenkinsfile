@@ -16,6 +16,16 @@ pipeline {
                 bat 'type .env'
             }
         }
+        stage('Build Java Services') {
+            steps {
+                bat 'cd backend\\user-service\\user-service && mvnw clean package -DskipTests'
+                bat 'cd backend\\notification-service\\notification-service && mvnw clean package -DskipTests'
+                bat 'cd backend\\analytics-service\\analytics-service && mvnw clean package -DskipTests'
+                bat 'cd backend\\ticket-service\\ticket-service && mvnw clean package -DskipTests'
+                bat 'cd backend\\route-service\\route-service && mvnw clean package -DskipTests'
+                bat 'cd backend\\schedule-service\\schedule-service && mvnw clean package -DskipTests'
+            }
+        }
         stage('Deploy Services') {
             steps {
                 bat 'docker-compose down --remove-orphans'
@@ -39,16 +49,6 @@ pipeline {
         stage('Docker Info') {
             steps {
                 bat 'docker info'
-            }
-        }
-        stage('Build Java Services') {
-            steps {
-                bat 'cd backend\\user-service\\user-service && mvnw clean package -DskipTests'
-                bat 'cd backend\\notification-service\\notification-service && mvnw clean package -DskipTests'
-                bat 'cd backend\\analytics-service\\analytics-service && mvnw clean package -DskipTests'
-                bat 'cd backend\\ticket-service\\ticket-service && mvnw clean package -DskipTests'
-                bat 'cd backend\\route-service\\route-service && mvnw clean package -DskipTests'
-                bat 'cd backend\\schedule-service\\schedule-service && mvnw clean package -DskipTests'
             }
         }
     }
