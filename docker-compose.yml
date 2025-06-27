@@ -3,7 +3,8 @@ version: '3.8'
 services:
   # User Service
   user-service:
-    image: molemomm/user-service:latest
+    build:
+      context: ./backend/user-service/user-service
     container_name: user-service
     ports:
       - "8089:8089"
@@ -15,7 +16,8 @@ services:
 
   # Notification Service
   notification-service:
-    image: molemomm/notification-service:latest
+    build:
+      context: ./backend/notification-service/notification-service
     container_name: notification-service
     ports:
       - "8083:8083"
@@ -27,7 +29,8 @@ services:
 
   # Analytics Service
   analytics-service:
-    image: molemomm/analytics-service:latest
+    build:
+      context: ./backend/analytics-service/analytics-service
     container_name: analytics-service
     ports:
       - "8086:8086"
@@ -39,7 +42,8 @@ services:
 
   # Ticket Service
   ticket-service:
-    image: molemomm/ticket-service:latest
+    build:
+      context: ./backend/ticket-service/ticket-service
     container_name: ticket-service
     ports:
       - "8087:8087"
@@ -51,7 +55,8 @@ services:
 
   # Route Service
   route-service:
-    image: molemomm/route-service:latest
+    build:
+      context: ./backend/route-service/route-service
     container_name: route-service
     ports:
       - "8084:8084"
@@ -63,7 +68,8 @@ services:
 
   # Schedule Service
   schedule-service:
-    image: molemomm/schedule-service:latest
+    build:
+      context: ./backend/schedule-service/schedule-service
     container_name: schedule-service
     ports:
       - "8085:8085"
@@ -88,7 +94,8 @@ services:
 
   # Frontend
   frontend:
-    image: molemomm/frontend:latest
+    build:
+      context: ./frontend
     container_name: frontend
     ports:
       - "3000:3000"
