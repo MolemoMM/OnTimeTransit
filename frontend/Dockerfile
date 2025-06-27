@@ -16,5 +16,5 @@ COPY . .
 # Step 5: Expose the port React runs on
 EXPOSE 3000
 
-# Step 6: Start the app
-CMD ["npm", "start"]
+# Step 6: Start the app and bind to all interfaces
+CMD ["npm", "start", "--", "--host", "0.0.0.0"]
