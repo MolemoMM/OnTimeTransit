@@ -53,4 +53,8 @@ public class AuthService {
         System.out.println("User login successful: " + user.getUsername());
         return "USER";
     }
+
+    public java.util.List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 }

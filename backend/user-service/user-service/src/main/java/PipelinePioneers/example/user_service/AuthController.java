@@ -3,6 +3,7 @@ package PipelinePioneers.example.user_service;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -33,6 +34,16 @@ public class AuthController {
             return ResponseEntity.ok(Map.of("token", token, "role", role));
         } catch (RuntimeException e) {
             return ResponseEntity.status(401).body("Invalid credentials");
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        try {
+            List<User> users = authService.getAllUsers();
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
         }
     }
 }
