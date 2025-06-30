@@ -46,10 +46,10 @@ function Register() {
       />
       <div className="landing-bg-overlay"></div>
       <div className="login-hero-content">
-        <h2 className="landing-title" style={{ fontSize: "2rem" }}>Register</h2>
+        <h2 className="landing-title">Register</h2>
         <form onSubmit={handleRegister}>
           <div className="mb-3">
-            <label className="form-label" style={{ color: "#b0bec5" }}>Username</label>
+            <label className="form-label">Username</label>
             <input
               type="text"
               className="form-control"
@@ -57,10 +57,11 @@ function Register() {
               value={user.username}
               onChange={handleChange}
               required
+              placeholder="Choose a username"
             />
           </div>
           <div className="mb-3">
-            <label className="form-label" style={{ color: "#b0bec5" }}>Password</label>
+            <label className="form-label">Password</label>
             <input
               type="password"
               className="form-control"
@@ -68,10 +69,11 @@ function Register() {
               value={user.password}
               onChange={handleChange}
               required
+              placeholder="Create a password"
             />
           </div>
           <div className="mb-3">
-            <label className="form-label" style={{ color: "#b0bec5" }}>Email</label>
+            <label className="form-label">Email</label>
             <input
               type="email"
               className="form-control"
@@ -79,10 +81,11 @@ function Register() {
               value={user.email}
               onChange={handleChange}
               required
+              placeholder="Enter your email"
             />
           </div>
           <div className="mb-3">
-            <label className="form-label" style={{ color: "#b0bec5" }}>Phone Number</label>
+            <label className="form-label">Phone Number</label>
             <input
               type="text"
               className="form-control"
@@ -90,6 +93,7 @@ function Register() {
               value={user.phoneNumber}
               onChange={handleChange}
               required
+              placeholder="Enter your phone number"
             />
           </div>
           <button type="submit" className="btn btn-primary">

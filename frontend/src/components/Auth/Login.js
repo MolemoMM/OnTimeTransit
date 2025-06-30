@@ -49,10 +49,10 @@ function Login() {
       />
       <div className="landing-bg-overlay"></div>
       <div className="login-hero-content">
-        <h2 className="landing-title" style={{ fontSize: "2rem" }}>Login</h2>
+        <h2 className="landing-title">Login</h2>
         <form onSubmit={handleLogin}>
           <div className="mb-3">
-            <label className="form-label" style={{ color: "#b0bec5" }}>Username</label>
+            <label className="form-label">Username</label>
             <input
               type="text"
               className="form-control"
@@ -60,16 +60,11 @@ function Login() {
               value={credentials.username}
               onChange={handleChange}
               required
-              style={{
-                background: "rgba(255,255,255,0.12)",
-                color: "#f8fafc",
-                border: "1px solid #00e6ff",
-                borderRadius: "10px"
-              }}
+              placeholder="Enter your username"
             />
           </div>
           <div className="mb-3">
-            <label className="form-label" style={{ color: "#b0bec5" }}>Password</label>
+            <label className="form-label">Password</label>
             <input
               type="password"
               className="form-control"
@@ -77,15 +72,10 @@ function Login() {
               value={credentials.password}
               onChange={handleChange}
               required
-              style={{
-                background: "rgba(255,255,255,0.12)",
-                color: "#f8fafc",
-                border: "1px solid #00e6ff",
-                borderRadius: "10px"
-              }}
+              placeholder="Enter your password"
             />
           </div>
-          <button type="submit" className="btn btn-primary" style={{ width: "100%" }}>
+          <button type="submit" className="btn btn-primary">
             Login
           </button>
         </form>

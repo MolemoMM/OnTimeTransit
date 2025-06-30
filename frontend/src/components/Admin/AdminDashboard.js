@@ -102,9 +102,9 @@ function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-900">
+    <div className="admin-dashboard">
       <Navbar />
-      <div className="p-6 space-y-8">
+      <div className="admin-main">
         {/* Modern Welcome Banner */}
         <Container maxWidth="xl" className="mb-8">
           <motion.div
@@ -114,47 +114,40 @@ function AdminDashboard() {
           >
             <Paper
               elevation={6}
-              className={`p-6 rounded-2xl text-white relative overflow-hidden ${
-                darkMode 
-                  ? 'bg-gradient-to-r from-indigo-800 via-blue-700 to-blue-600' 
-                  : 'bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-400'
-              }`}
+              className="admin-header"
             >
-              <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
-                <div className="flex-1 min-w-0">
-                  <Typography variant="h3" className="font-black mb-2 tracking-wide text-white">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex-1">
+                  <Typography variant="h3" className="font-bold mb-2 text-white">
                     Welcome back, {adminName}! 👋
                   </Typography>
-                  <Typography variant="h6" className="opacity-90 font-normal mb-4 text-white">
+                  <Typography variant="h6" className="mb-4 text-white">
                     Manage your transit system with ease and efficiency
                   </Typography>
                   <div className="flex gap-3 flex-wrap">
                     <Chip 
                       icon={<DashboardIcon />} 
                       label="Admin Dashboard" 
-                      className="bg-white/20 text-white font-semibold backdrop-blur-sm" 
+                      className="bg-white text-primary font-semibold" 
                     />
                     <Chip 
                       label={`${new Date().toLocaleDateString()}`} 
-                      className="bg-white/15 text-white backdrop-blur-sm" 
+                      className="bg-white text-secondary" 
                     />
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Badge badgeContent={4} color="error">
-                    <NotificationsIcon className="text-3xl text-white" />
+                    <NotificationsIcon className="text-white" style={{ fontSize: '2rem' }} />
                   </Badge>
                   <IconButton
                     onClick={() => setDarkMode((prev) => !prev)}
-                    className="text-white bg-white/15 hover:bg-white/25 rounded-xl backdrop-blur-sm transition-all duration-200"
+                    className="text-white btn-outline"
                     size="large"
                   >
                     {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
                   </IconButton>
                 </div>
-              </div>
-              <div className="absolute inset-0 opacity-30">
-                <div className="w-full h-full bg-white/5 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:60px_60px]"></div>
               </div>
             </Paper>
           </motion.div>
@@ -169,7 +162,7 @@ function AdminDashboard() {
                 whileHover={{ scale: 1.02, y: -2 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card className="bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
+                <Card className="card card-gradient-primary">
                   <CardContent className="flex items-center justify-between p-6">
                     <div className="flex-1">
                       <Typography variant="h6" className="font-semibold mb-2 text-white">
@@ -178,13 +171,13 @@ function AdminDashboard() {
                       <Typography variant="h3" className="font-bold text-white">
                         {users ? users.length : 0}
                       </Typography>
-                      <Typography variant="body2" className="opacity-80 mt-2 flex items-center text-white">
-                        <TrendingUp className="w-4 h-4 mr-1" />
+                      <Typography variant="body2" className="mt-2 flex items-center text-white">
+                        <TrendingUp style={{ width: '16px', height: '16px', marginRight: '4px' }} />
                         Active users
                       </Typography>
                     </div>
-                    <Avatar className="bg-white/20 w-14 h-14 backdrop-blur-sm">
-                      <PeopleIcon className="text-2xl text-white" />
+                    <Avatar className="bg-white text-primary" style={{ width: '56px', height: '56px' }}>
+                      <PeopleIcon style={{ fontSize: '2rem' }} />
                     </Avatar>
                   </CardContent>
                 </Card>
@@ -197,7 +190,7 @@ function AdminDashboard() {
                 whileHover={{ scale: 1.02, y: -2 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card className="bg-gradient-to-br from-pink-500 to-rose-500 text-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
+                <Card className="card card-gradient-error">
                   <CardContent className="flex items-center justify-between p-6">
                     <div className="flex-1">
                       <Typography variant="h6" className="font-semibold mb-2 text-white">
@@ -206,13 +199,13 @@ function AdminDashboard() {
                       <Typography variant="h3" className="font-bold text-white">
                         {routes.length}
                       </Typography>
-                      <Typography variant="body2" className="opacity-80 mt-2 flex items-center text-white">
-                        <TrendingUp className="w-4 h-4 mr-1" />
+                      <Typography variant="body2" className="mt-2 flex items-center text-white">
+                        <TrendingUp style={{ width: '16px', height: '16px', marginRight: '4px' }} />
                         Available routes
                       </Typography>
                     </div>
-                    <Avatar className="bg-white/20 w-14 h-14 backdrop-blur-sm">
-                      <BusIcon className="text-2xl text-white" />
+                    <Avatar className="bg-white text-error" style={{ width: '56px', height: '56px' }}>
+                      <BusIcon style={{ fontSize: '2rem' }} />
                     </Avatar>
                   </CardContent>
                 </Card>
@@ -225,7 +218,7 @@ function AdminDashboard() {
                 whileHover={{ scale: 1.02, y: -2 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card className="bg-gradient-to-br from-cyan-500 to-blue-500 text-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
+                <Card className="card card-gradient-primary">
                   <CardContent className="flex items-center justify-between p-6">
                     <div className="flex-1">
                       <Typography variant="h6" className="font-semibold mb-2 text-white">
@@ -234,13 +227,13 @@ function AdminDashboard() {
                       <Typography variant="h3" className="font-bold text-white">
                         {tickets.length}
                       </Typography>
-                      <Typography variant="body2" className="opacity-80 mt-2 flex items-center text-white">
-                        <TrendingUp className="w-4 h-4 mr-1" />
+                      <Typography variant="body2" className="mt-2 flex items-center text-white">
+                        <TrendingUp style={{ width: '16px', height: '16px', marginRight: '4px' }} />
                         Booked tickets
                       </Typography>
                     </div>
-                    <Avatar className="bg-white/20 w-14 h-14 backdrop-blur-sm">
-                      <TicketIcon className="text-2xl text-white" />
+                    <Avatar className="bg-white text-primary" style={{ width: '56px', height: '56px' }}>
+                      <TicketIcon style={{ fontSize: '2rem' }} />
                     </Avatar>
                   </CardContent>
                 </Card>
@@ -253,7 +246,7 @@ function AdminDashboard() {
                 whileHover={{ scale: 1.02, y: -2 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card className="bg-gradient-to-br from-orange-500 to-yellow-400 text-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
+                <Card className="card card-gradient-warning">
                   <CardContent className="flex items-center justify-between p-6">
                     <div className="flex-1">
                       <Typography variant="h6" className="font-semibold mb-2 text-white">
@@ -262,13 +255,13 @@ function AdminDashboard() {
                       <Typography variant="h3" className="font-bold text-white">
                         {schedules.length}
                       </Typography>
-                      <Typography variant="body2" className="opacity-80 mt-2 flex items-center text-white">
-                        <TrendingUp className="w-4 h-4 mr-1" />
+                      <Typography variant="body2" className="mt-2 flex items-center text-white">
+                        <TrendingUp style={{ width: '16px', height: '16px', marginRight: '4px' }} />
                         Active schedules
                       </Typography>
                     </div>
-                    <Avatar className="bg-white/20 w-14 h-14 backdrop-blur-sm">
-                      <ScheduleIcon className="text-2xl text-white" />
+                    <Avatar className="bg-white text-warning" style={{ width: '56px', height: '56px' }}>
+                      <ScheduleIcon style={{ fontSize: '2rem' }} />
                     </Avatar>
                   </CardContent>
                 </Card>
@@ -281,14 +274,10 @@ function AdminDashboard() {
         <Container maxWidth="xl" className="mb-8">
           <Paper 
             elevation={3} 
-            className={`p-6 rounded-2xl ${
-              darkMode 
-                ? 'bg-gradient-to-br from-gray-800 to-gray-900' 
-                : 'bg-gradient-to-br from-slate-50 to-gray-100'
-            }`}
+            className="card p-6"
           >
-            <Typography variant="h5" className="font-bold mb-6 flex items-center text-gray-800 dark:text-white">
-              <DashboardIcon className="mr-3 text-blue-600" />
+            <Typography variant="h5" className="font-bold mb-6 flex items-center text-secondary">
+              <DashboardIcon className="mr-3 text-primary" />
               Quick Actions
             </Typography>
             <Grid container spacing={3}>
@@ -299,7 +288,7 @@ function AdminDashboard() {
                     fullWidth
                     startIcon={<AddIcon />}
                     onClick={() => navigate("/admin/routes/add")}
-                    className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl py-3 shadow-lg hover:shadow-xl transition-all duration-200 font-semibold"
+                    className="btn btn-primary"
                   >
                     Add Route
                   </Button>
@@ -312,7 +301,7 @@ function AdminDashboard() {
                     fullWidth
                     startIcon={<ScheduleIcon />}
                     onClick={() => navigate("/admin/schedules/assign")}
-                    className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white rounded-xl py-3 shadow-lg hover:shadow-xl transition-all duration-200 font-semibold"
+                    className="btn btn-error"
                   >
                     Assign Schedule
                   </Button>
@@ -325,7 +314,7 @@ function AdminDashboard() {
                     fullWidth
                     startIcon={<AnalyticsIcon />}
                     onClick={() => navigate("/admin/analytics")}
-                    className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-xl py-3 shadow-lg hover:shadow-xl transition-all duration-200 font-semibold"
+                    className="btn btn-primary"
                   >
                     View Analytics
                   </Button>
@@ -338,7 +327,7 @@ function AdminDashboard() {
                     fullWidth
                     startIcon={<PeopleIcon />}
                     onClick={() => navigate("/admin/users")}
-                    className="bg-gradient-to-r from-orange-500 to-yellow-400 hover:from-orange-600 hover:to-yellow-500 text-white rounded-xl py-3 shadow-lg hover:shadow-xl transition-all duration-200 font-semibold"
+                    className="btn btn-warning"
                   >
                     Manage Users
                   </Button>
@@ -349,76 +338,76 @@ function AdminDashboard() {
         </Container>
 
         {/* Main Dashboard Layout */}
-        <div className="flex gap-8 max-w-7xl mx-auto px-6">
-          <aside className={`w-80 ${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-lg p-6 h-fit sticky top-6`}>
-            <h2 className="text-xl font-bold mb-6 text-gray-800 dark:text-white flex items-center">
-              <DashboardIcon className="mr-2 text-blue-600" />
+        <div className="flex gap-8">
+          <aside className="card" style={{ width: '320px', height: 'fit-content', position: 'sticky', top: '24px' }}>
+            <h2 className="text-xl font-bold mb-6 text-secondary flex items-center">
+              <DashboardIcon className="mr-2 text-primary" />
               Navigation
             </h2>
             <nav>
-              <ul className="space-y-2">
+              <ul className="gap-2">
                 <li>
                   <Link 
                     to="/admin/tickets" 
-                    className={`flex items-center p-3 rounded-xl transition-all duration-200 hover:bg-blue-50 dark:hover:bg-gray-700 ${
+                    className={`sidebar-item ${
                       location.pathname.includes("/admin/tickets") 
-                        ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-l-4 border-blue-500" 
-                        : "text-gray-600 dark:text-gray-300"
+                        ? "active" 
+                        : ""
                     }`}
                   >
-                    <TicketIcon className="mr-3 w-5 h-5" />
+                    <TicketIcon className="sidebar-icon" />
                     Manage Tickets
                   </Link>
                 </li>
                 <li>
                   <Link 
                     to="/admin/routes" 
-                    className={`flex items-center p-3 rounded-xl transition-all duration-200 hover:bg-blue-50 dark:hover:bg-gray-700 ${
+                    className={`sidebar-item ${
                       location.pathname.includes("/admin/routes") 
-                        ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-l-4 border-blue-500" 
-                        : "text-gray-600 dark:text-gray-300"
+                        ? "active" 
+                        : ""
                     }`}
                   >
-                    <BusIcon className="mr-3 w-5 h-5" />
+                    <BusIcon className="sidebar-icon" />
                     Manage Routes
                   </Link>
                 </li>
                 <li>
                   <Link 
                     to="/admin/schedules" 
-                    className={`flex items-center p-3 rounded-xl transition-all duration-200 hover:bg-blue-50 dark:hover:bg-gray-700 ${
+                    className={`sidebar-item ${
                       location.pathname.includes("/admin/schedules") 
-                        ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-l-4 border-blue-500" 
-                        : "text-gray-600 dark:text-gray-300"
+                        ? "active" 
+                        : ""
                     }`}
                   >
-                    <ScheduleIcon className="mr-3 w-5 h-5" />
+                    <ScheduleIcon className="sidebar-icon" />
                     Manage Schedules
                   </Link>
                 </li>
                 <li>
                   <Link 
                     to="/admin/analytics" 
-                    className={`flex items-center p-3 rounded-xl transition-all duration-200 hover:bg-blue-50 dark:hover:bg-gray-700 ${
+                    className={`sidebar-item ${
                       location.pathname.includes("/admin/analytics") 
-                        ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-l-4 border-blue-500" 
-                        : "text-gray-600 dark:text-gray-300"
+                        ? "active" 
+                        : ""
                     }`}
                   >
-                    <AnalyticsIcon className="mr-3 w-5 h-5" />
+                    <AnalyticsIcon className="sidebar-icon" />
                     Analytics
                   </Link>
                 </li>
                 <li>
                   <Link 
                     to="/admin/users" 
-                    className={`flex items-center p-3 rounded-xl transition-all duration-200 hover:bg-blue-50 dark:hover:bg-gray-700 ${
+                    className={`sidebar-item ${
                       location.pathname.includes("/admin/users") 
-                        ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-l-4 border-blue-500" 
-                        : "text-gray-600 dark:text-gray-300"
+                        ? "active" 
+                        : ""
                     }`}
                   >
-                    <PeopleIcon className="mr-3 w-5 h-5" />
+                    <PeopleIcon className="sidebar-icon" />
                     View Users
                   </Link>
                 </li>
@@ -426,7 +415,7 @@ function AdminDashboard() {
             </nav>
           </aside>
           <main className="flex-1">
-            <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-lg p-6 min-h-96`}>
+            <div className="card" style={{ minHeight: '384px' }}>
               <Routes>
                 <Route path="tickets" element={<ManageTickets />} />
                 <Route path="routes" element={<ManageRoutes />} />
@@ -448,14 +437,10 @@ function AdminDashboard() {
             <Grid item xs={12} md={8}>
               <Paper 
                 elevation={3} 
-                className={`p-6 rounded-2xl ${
-                  darkMode 
-                    ? 'bg-gradient-to-br from-gray-800 to-gray-900' 
-                    : 'bg-gradient-to-br from-slate-50 to-gray-100'
-                }`}
+                className="card p-6"
               >
-                <Typography variant="h6" className="font-bold mb-6 flex items-center text-gray-800 dark:text-white">
-                  <NotificationsIcon className="mr-3 text-blue-600" />
+                <Typography variant="h6" className="font-bold mb-6 flex items-center text-secondary">
+                  <NotificationsIcon className="mr-3 text-primary" />
                   Send System Notifications
                 </Typography>
                 <TextField
@@ -466,13 +451,7 @@ function AdminDashboard() {
                   rows={3}
                   value={notificationMessage}
                   onChange={(e) => setNotificationMessage(e.target.value)}
-                  className="mb-4"
-                  sx={{ 
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 3,
-                      backgroundColor: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)'
-                    }
-                  }}
+                  className="form-input mb-4"
                   placeholder="Enter your notification message here..."
                 />
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -481,7 +460,7 @@ function AdminDashboard() {
                     onClick={handleSendNotification}
                     disabled={!notificationMessage.trim()}
                     startIcon={<NotificationsIcon />}
-                    className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl py-3 px-6 shadow-lg hover:shadow-xl transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn btn-primary"
                   >
                     Send Notification
                   </Button>
@@ -493,32 +472,28 @@ function AdminDashboard() {
             <Grid item xs={12} md={4}>
               <Paper 
                 elevation={3} 
-                className={`p-6 rounded-2xl h-full ${
-                  darkMode 
-                    ? 'bg-gradient-to-br from-gray-800 to-gray-900' 
-                    : 'bg-gradient-to-br from-slate-50 to-gray-100'
-                }`}
+                className="card p-6 h-full"
               >
-                <Typography variant="h6" className="font-bold mb-6 flex items-center text-gray-800 dark:text-white">
-                  <Settings className="mr-3 text-blue-600" />
+                <Typography variant="h6" className="font-bold mb-6 flex items-center text-secondary">
+                  <Settings className="mr-3 text-primary" />
                   System Status
                 </Typography>
-                <div className="space-y-4 mb-6">
+                <div className="mb-6" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div className="flex justify-between items-center">
-                    <Typography variant="body2" className="text-gray-600 dark:text-gray-300">Database</Typography>
-                    <Chip label="Online" className="bg-green-100 text-green-700 font-semibold" size="small" />
+                    <Typography variant="body2" className="text-secondary">Database</Typography>
+                    <Chip label="Online" className="bg-success text-white font-semibold" size="small" />
                   </div>
                   <div className="flex justify-between items-center">
-                    <Typography variant="body2" className="text-gray-600 dark:text-gray-300">API Services</Typography>
-                    <Chip label="Running" className="bg-green-100 text-green-700 font-semibold" size="small" />
+                    <Typography variant="body2" className="text-secondary">API Services</Typography>
+                    <Chip label="Running" className="bg-success text-white font-semibold" size="small" />
                   </div>
                   <div className="flex justify-between items-center">
-                    <Typography variant="body2" className="text-gray-600 dark:text-gray-300">Notifications</Typography>
-                    <Chip label="Active" className="bg-green-100 text-green-700 font-semibold" size="small" />
+                    <Typography variant="body2" className="text-secondary">Notifications</Typography>
+                    <Chip label="Active" className="bg-success text-white font-semibold" size="small" />
                   </div>
                 </div>
                 <Divider className="mb-4" />
-                <Typography variant="body2" className="text-gray-500 dark:text-gray-400">
+                <Typography variant="body2" className="text-secondary">
                   Last updated: {new Date().toLocaleString()}
                 </Typography>
               </Paper>
