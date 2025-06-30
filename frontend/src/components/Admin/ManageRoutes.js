@@ -146,6 +146,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useData } from "../../context/DataContext";
+import "./stylings/ManageRoutes.css";
 
 function ManageRoutes() {
   const { routes, setRoutes } = useData();

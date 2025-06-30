@@ -24,6 +24,9 @@ import { AuthProvider } from "./context/AuthContext";
 import { DataProvider } from "./context/DataContext";
 import PrivateRoute from "./utils/PrivateRoute";
 
+
+import './App.css';
+
 function App() {
   return (
     <Router>

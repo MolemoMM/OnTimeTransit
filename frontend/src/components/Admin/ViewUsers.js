@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ApiService } from "../../services/ApiService";
 import { toast } from "react-toastify";
+import "./stylings/ManageTickets.css";
 
 function ViewUsers() {
   const [users, setUsers] = useState([]);
