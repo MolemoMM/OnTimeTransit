@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import AuthService from "../../services/AuthService";
-import "../../pages/LandingPage.css";
 
 function Login() {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
