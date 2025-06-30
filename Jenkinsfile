@@ -1,5 +1,12 @@
 pipeline {
     agent any
+    
+    triggers {
+        // Poll SCM every 2 minutes for changes
+        pollSCM('H/2 * * * *')
+        // Alternative: Use GitHub webhook (requires GitHub plugin and webhook setup)
+        // githubPush()
+    }
 
     stages {
         stage('Clean Workspace') {
