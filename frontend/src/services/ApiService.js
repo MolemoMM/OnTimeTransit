@@ -1,3 +1,4 @@
+// Updated API service with proper URL separation
 import axios from "axios";
 import { toast } from "react-toastify";
 
