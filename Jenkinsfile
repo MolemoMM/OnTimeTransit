@@ -37,9 +37,12 @@ pipeline {
             steps {
                 bat 'docker-compose down --remove-orphans'
                 bat 'docker container prune -f'
+                bat 'docker image prune -f'
                 // Remove all possible conflicting containers by name
                 bat 'docker rm -f user-service notification-service analytics-service ticket-service route-service schedule-service frontend pgadmin || exit 0'
                 bat 'docker-compose pull'
+                // Force rebuild all images without cache
+                bat 'docker-compose build --no-cache'
                 bat 'docker-compose up -d'
             }
         }
