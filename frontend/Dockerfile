@@ -1,14 +1,14 @@
 # frontend/Dockerfile
 
-# Step 1: Use official Node.js image
-FROM node:22
+# Step 1: Use official Node.js image with Alpine for smaller size
+FROM node:22-alpine
 
 # Step 2: Set working directory
 WORKDIR /app
 
 # Step 3: Copy package files and install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm ci --silent
 
 # Step 4: Copy the rest of the code
 COPY . .
