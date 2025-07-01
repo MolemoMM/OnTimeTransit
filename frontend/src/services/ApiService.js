@@ -143,4 +143,4 @@ const ApiService = {
     axiosInstance.get(`${ANALYTICS_SERVICE_URL}/summary`).then((res) => res.data).catch(handleApiError),
 };
 
-export { ApiService };
+export default ApiService; // This should be the ONLY export

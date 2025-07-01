@@ -13,17 +13,11 @@ import AddSchedule from "./components/BusSchedule/AddBusSchedule";
 import TicketList from "./components/TicketBooking/TicketList";
 import BookTicket from "./components/TicketBooking/BookTicket";
 import RouteList from "./components/RouteManagement/RouteList";
-//import AddRoute from "./components/RouteManagement/AddRoute";
-//import ManageTickets from "./components/Admin/ManageTickets";
-//import ManageRoutes from "./components/Admin/ManageRoutes";
 import ViewSchedules from "./components/User/ViewSchedules";
-//import AssignSchedule from "./components/BusSchedule/AssignSchedule";
-//import AssignExistingSchedule from "./components/BusSchedule/AssignExistingSchedule";
 
 import { AuthProvider } from "./context/AuthContext";
 import { DataProvider } from "./context/DataContext";
 import PrivateRoute from "./utils/PrivateRoute";
-
 
 function App() {
   return (
@@ -34,11 +28,9 @@ function App() {
             <Routes>
               {/* Landing Page */}
               <Route path="/" element={<LandingPage />} />
-
-              {/* Login Page */}
+              
+              {/* Auth Routes */}
               <Route path="/login" element={<Login />} />
-
-              {/* Register Page */}
               <Route path="/register" element={<Register />} />
 
               {/* Admin Dashboard Routes */}
@@ -51,7 +43,7 @@ function App() {
                 }
               />
 
-              {/* User Dashboard Routes */}
+              {/* User Routes */}
               <Route
                 path="/user"
                 element={
@@ -93,11 +85,9 @@ function App() {
                 }
               />
 
-              {/* Additional Routes */}
+              {/* Public Routes */}
               <Route path="/schedules" element={<BusScheduleList />} />
               <Route path="/schedules/add" element={<AddSchedule />} />
-
-              {/* Route List */}
               <Route path="/routes" element={<RouteList />} />
 
               {/* Default Redirect */}
