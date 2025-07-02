@@ -1,6 +1,21 @@
 version: '3.8'
 
 services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+    init: true
+
   # User Service
   user-service:
     build:
@@ -11,7 +26,9 @@ services:
     environment:
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      SPRING_DATASOURCE_URL: ${USER_SERVICE_DB}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/user_service
+    depends_on:
+      - postgres
     init: true
 
   # Notification Service
@@ -22,10 +39,12 @@ services:
     ports:
       - "8083:8083"
     environment:
-      SPRING_DATASOURCE_URL: ${NOTIFICATION_SERVICE_DB}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/notification_service
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      init: true
+    depends_on:
+      - postgres
+    init: true
 
   # Analytics Service
   analytics-service:
@@ -35,10 +54,12 @@ services:
     ports:
       - "8086:8086"
     environment:
-      SPRING_DATASOURCE_URL: ${ANALYTICS_SERVICE_DB}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/analytics_service
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      init: true
+    depends_on:
+      - postgres
+    init: true
 
   # Ticket Service
   ticket-service:
@@ -48,10 +69,12 @@ services:
     ports:
       - "8087:8087"
     environment:
-      SPRING_DATASOURCE_URL: ${TICKET_SERVICE_DB}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ticket_service
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      init: true
+    depends_on:
+      - postgres
+    init: true
 
   # Route Service
   route-service:
@@ -61,10 +84,12 @@ services:
     ports:
       - "8084:8084"
     environment:
-      SPRING_DATASOURCE_URL: ${ROUTE_SERVICE_DB}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/route_service
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      init: true
+    depends_on:
+      - postgres
+    init: true
 
   # Schedule Service
   schedule-service:
@@ -74,10 +99,12 @@ services:
     ports:
       - "8085:8085"
     environment:
-      SPRING_DATASOURCE_URL: ${SCHEDULE_SERVICE_DB}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/schedule_service
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      init: true
+    depends_on:
+      - postgres
+    init: true
 
   # pgAdmin (Optional)
   pgadmin:
@@ -90,6 +117,8 @@ services:
       - "5050:80"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
     init: true
 
   # Frontend
@@ -104,4 +133,5 @@ services:
     init: true
 
 volumes:
+  postgres_data:
   pgadmin_data:

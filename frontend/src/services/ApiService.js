@@ -7,7 +7,7 @@ const SCHEDULE_SERVICE_URL = "http://localhost:8085/api/schedules";
 const TICKET_SERVICE_URL = "http://localhost:8087/api/tickets";
 const AUTH_SERVICE_URL = "http://localhost:8089/api/auth";
 const USER_SERVICE_URL = "http://localhost:8089/api/users";
-const NOTIFICATION_SERVICE_URL = "http://localhost:8085/api/notifications";
+const NOTIFICATION_SERVICE_URL = "http://localhost:8083/api/notifications";
 const ANALYTICS_SERVICE_URL = "http://localhost:8086/api/analytics";
 
 const token = localStorage.getItem("token"); // Retrieve token from localStorage

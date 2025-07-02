@@ -23,9 +23,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/tickets/book", "/api/tickets/user/**", "/api/tickets/cancel/**", "/api/tickets/available-seats").permitAll()
-                .requestMatchers("/api/tickets/**/status", "/api/tickets/bulk-status", "/api/tickets/statistics").hasRole("ADMIN")
-                .anyRequest().permitAll() // For now, allow all other requests
+                .anyRequest().permitAll() // Allow all requests for now until proper authentication is set up
             );
 
         return http.build();
