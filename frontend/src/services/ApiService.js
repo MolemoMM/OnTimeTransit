@@ -119,6 +119,25 @@ const ApiService = {
       })
       .then((res) => res.data)
       .catch(handleApiError),
+  updateTicketStatus: async (id, status) => {
+    try {
+      const response = await axiosInstance.put(`${TICKET_SERVICE_URL}/${id}/status`, { status });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw error;
+    }
+  },
+  // Add method to get tickets for current user
+  getUserTickets: async () => {
+    try {
+      const response = await axiosInstance.get(`${TICKET_SERVICE_URL}/user/my-tickets`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw error;
+    }
+  },
 
   // Authentication
   login: (credentials) => axiosInstance.post(`${AUTH_SERVICE_URL}/login`, credentials).then((res) => res.data).catch(handleApiError),

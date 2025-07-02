@@ -158,6 +158,56 @@ function ManageTickets({ onAnalyticsUpdate }) {
     }
   };
 
+  // Add ticket status update functionality
+  const updateTicketStatus = async (ticketId, newStatus) => {
+    if (!window.confirm(`Are you sure you want to change this ticket status to ${newStatus}?`)) {
+      return;
+    }
+
+    try {
+      await ApiService.updateTicketStatus(ticketId, newStatus);
+      toast.success(`Ticket status updated to ${newStatus} successfully!`);
+      
+      // Update local state
+      setTickets((prev) =>
+        prev.map((ticket) =>
+          ticket.id === ticketId ? { ...ticket, status: newStatus } : ticket
+        )
+      );
+      setFilteredTickets((prev) =>
+        prev.map((ticket) =>
+          ticket.id === ticketId ? { ...ticket, status: newStatus } : ticket
+        )
+      );
+    } catch (error) {
+      toast.error("Failed to update ticket status.");
+      console.error("Error updating ticket status:", error);
+    }
+  };
+
+  const handleBulkStatusUpdate = async (selectedTickets, newStatus) => {
+    if (selectedTickets.length === 0) {
+      toast.error("Please select tickets to update.");
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to change ${selectedTickets.length} ticket(s) status to ${newStatus}?`)) {
+      return;
+    }
+
+    try {
+      await Promise.all(
+        selectedTickets.map(ticketId => ApiService.updateTicketStatus(ticketId, newStatus))
+      );
+      
+      toast.success(`${selectedTickets.length} ticket(s) status updated successfully!`);
+      fetchTickets(); // Refresh data
+    } catch (error) {
+      toast.error("Failed to update ticket statuses.");
+      console.error("Error updating ticket statuses:", error);
+    }
+  };
+
   return (
     <div style={{ padding: '24px' }}>
       <div className="modern-card">
@@ -279,6 +329,16 @@ function ManageTickets({ onAnalyticsUpdate }) {
             <table className="modern-table">
               <thead>
                 <tr>
+                  <th style={{ width: '40px' }}>
+                    <input
+                      type="checkbox"
+                      onChange={(e) => {
+                        const checkboxes = document.querySelectorAll('input[name="ticketSelect"]');
+                        checkboxes.forEach(cb => cb.checked = e.target.checked);
+                      }}
+                      style={{ transform: 'scale(1.2)' }}
+                    />
+                  </th>
                   <th>
                     <i className="fas fa-user" style={{ marginRight: '8px' }}></i>
                     Passenger
@@ -313,6 +373,14 @@ function ManageTickets({ onAnalyticsUpdate }) {
                 {filteredTickets.length > 0 ? (
                   filteredTickets.map((ticket) => (
                     <tr key={ticket.id}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          name="ticketSelect"
+                          value={ticket.id}
+                          style={{ transform: 'scale(1.2)' }}
+                        />
+                      </td>
                       <td>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                           <strong>{ticket.passengerName}</strong>
@@ -367,24 +435,36 @@ function ManageTickets({ onAnalyticsUpdate }) {
                         </span>
                       </td>
                       <td>
-                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                          {ticket.status?.toLowerCase() !== "canceled" ? (
-                            <button
-                              className="modern-btn modern-btn-warning"
-                              onClick={() => cancelTicket(ticket.id)}
-                              style={{ padding: '6px 12px', fontSize: '12px' }}
-                            >
-                              <i className="fas fa-ban"></i>
-                              Cancel
-                            </button>
-                          ) : (
+                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
+                          {/* Status Update Dropdown */}
+                          <select
+                            value={ticket.status}
+                            onChange={(e) => updateTicketStatus(ticket.id, e.target.value)}
+                            style={{
+                              padding: '4px 8px',
+                              borderRadius: '8px',
+                              border: '2px solid #e2e8f0',
+                              fontSize: '11px',
+                              fontWeight: '600',
+                              background: 'white',
+                              cursor: 'pointer',
+                              color: getStatusColor(ticket.status)
+                            }}
+                          >
+                            <option value="Pending">Pending</option>
+                            <option value="Confirmed">Confirmed</option>
+                            <option value="Canceled">Canceled</option>
+                          </select>
+                          
+                          {/* Delete button for canceled tickets */}
+                          {ticket.status?.toLowerCase() === "canceled" && (
                             <button
                               className="modern-btn modern-btn-danger"
                               onClick={() => deleteTicket(ticket.id)}
-                              style={{ padding: '6px 12px', fontSize: '12px' }}
+                              style={{ padding: '4px 8px', fontSize: '10px' }}
+                              title="Delete Ticket"
                             >
                               <i className="fas fa-trash"></i>
-                              Delete
                             </button>
                           )}
                         </div>
@@ -393,7 +473,7 @@ function ManageTickets({ onAnalyticsUpdate }) {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+                    <td colSpan={8} style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
                       <i className="fas fa-ticket-alt" style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.3 }}></i>
                       <br />
                       {search || selectedStatus !== 'all' 
@@ -406,6 +486,54 @@ function ManageTickets({ onAnalyticsUpdate }) {
             </table>
           </div>
         )}
+
+        {/* Bulk Actions */}
+        <div style={{ 
+          background: 'linear-gradient(135deg, #fff7ed, #fed7aa)',
+          padding: '16px',
+          borderRadius: '12px',
+          marginTop: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          flexWrap: 'wrap'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <i className="fas fa-tools" style={{ color: '#ea580c' }}></i>
+            <span style={{ fontWeight: '600', color: '#ea580c' }}>Bulk Actions:</span>
+          </div>
+          <select 
+            id="bulkStatus"
+            className="modern-select"
+            style={{ minWidth: '150px', padding: '8px 12px', fontSize: '14px' }}
+            defaultValue=""
+          >
+            <option value="">Select Status</option>
+            <option value="Pending">Mark as Pending</option>
+            <option value="Confirmed">Mark as Confirmed</option>
+            <option value="Canceled">Mark as Canceled</option>
+          </select>
+          <button
+            className="modern-btn modern-btn-primary"
+            onClick={() => {
+              const bulkStatus = document.getElementById('bulkStatus').value;
+              const selectedTickets = document.querySelectorAll('input[name="ticketSelect"]:checked');
+              const ticketIds = Array.from(selectedTickets).map(cb => parseInt(cb.value));
+              if (bulkStatus) {
+                handleBulkStatusUpdate(ticketIds, bulkStatus);
+              } else {
+                toast.error('Please select a status first.');
+              }
+            }}
+            style={{ padding: '8px 16px', fontSize: '14px' }}
+          >
+            <i className="fas fa-check-double"></i>
+            Apply to Selected
+          </button>
+          <span style={{ fontSize: '12px', color: '#6b7280' }}>
+            Select tickets using checkboxes, choose status, and click Apply
+          </span>
+        </div>
       </div>
     </div>
   );
