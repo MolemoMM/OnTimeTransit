@@ -12,7 +12,31 @@ pipeline {
         stage('Clean Workspace') {
             steps {
                 cleanWs()
-                checkout scm
+                script {
+                    // Configure Git for better network handling
+                    bat '''
+                        git config --global http.lowSpeedLimit 1000
+                        git config --global http.lowSpeedTime 300
+                        git config --global http.postBuffer 524288000
+                        git config --global core.compression 0
+                        git config --global protocol.version 1
+                    '''
+                }
+                retry(3) {
+                    timeout(time: 10, unit: 'MINUTES') {
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: '*/main']],
+                            doGenerateSubmoduleConfigurations: false,
+                            extensions: [
+                                [$class: 'CloneOption', depth: 1, shallow: true],
+                                [$class: 'CheckoutOption', timeout: 20]
+                            ],
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[url: 'https://github.com/MolemoMM/OnTimeTransit.git']]
+                        ])
+                    }
+                }
             }
         }
         stage('Copy .env to Workspace') {
@@ -65,7 +89,19 @@ pipeline {
 
     post {
         always {
-            bat 'docker-compose ps'
+            script {
+                try {
+                    bat 'docker-compose ps'
+                } catch (Exception e) {
+                    echo "Docker compose ps failed: ${e.getMessage()}"
+                }
+            }
+        }
+        failure {
+            echo 'Pipeline failed! Check logs for details.'
+        }
+        success {
+            echo 'Pipeline completed successfully!'
         }
     }
 }
