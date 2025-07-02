@@ -11,8 +11,8 @@ const PrivateRoute = ({ children, allowedRoles = [] }) => {
   }
 
   if (!allowedRoles.includes(role)) {
-    // If the user's role is not allowed, redirect to the landing page
-    return <Navigate to="/" />;
+    // If the user's role is not allowed, redirect to login
+    return <Navigate to="/login" />;
   }
 
   return children; // Render the protected component

@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import LandingPage from "./pages/LandingPage";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import AdminDashboard from "./components/Admin/AdminDashboard";
@@ -18,6 +17,20 @@ import ViewSchedules from "./components/User/ViewSchedules";
 import { AuthProvider } from "./context/AuthContext";
 import { DataProvider } from "./context/DataContext";
 import PrivateRoute from "./utils/PrivateRoute";
+import { useAuth } from "./context/AuthContext";
+
+// Component to handle root route redirection
+const RootRedirect = () => {
+  const { isAuthenticated, role } = useAuth();
+  
+  if (isAuthenticated) {
+    // Redirect to appropriate dashboard based on role
+    return <Navigate to={role === "ADMIN" ? "/admin" : "/user"} replace />;
+  }
+  
+  // If not authenticated, redirect to login
+  return <Navigate to="/login" replace />;
+};
 
 function App() {
   return (
@@ -26,8 +39,8 @@ function App() {
         <DataProvider>
           <div className="App">
             <Routes>
-              {/* Landing Page */}
-              <Route path="/" element={<LandingPage />} />
+              {/* Root redirect - goes to login if not authenticated */}
+              <Route path="/" element={<RootRedirect />} />
               
               {/* Auth Routes */}
               <Route path="/login" element={<Login />} />
@@ -90,8 +103,8 @@ function App() {
               <Route path="/schedules/add" element={<AddSchedule />} />
               <Route path="/routes" element={<RouteList />} />
 
-              {/* Default Redirect */}
-              <Route path="*" element={<Navigate to="/" />} />
+              {/* Default Redirect - redirect to login */}
+              <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </div>
           <ToastContainer position="top-right" autoClose={3000} />
