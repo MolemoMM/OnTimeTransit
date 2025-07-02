@@ -94,169 +94,153 @@ function AdminDashboard() {
       case "users":
         return <ViewUsers />;
       default:
-        return renderDashboard();
+        return (
+          <>
+            {/* Statistics Grid */}
+            <div className="stats-grid">
+              <div className="stat-card users">
+                <div className="stat-value">{users.length || 0}</div>
+                <div className="stat-label">Total Users</div>
+              </div>
+              <div className="stat-card routes">
+                <div className="stat-value">{routes.length || 0}</div>
+                <div className="stat-label">Active Routes</div>
+              </div>
+              <div className="stat-card tickets">
+                <div className="stat-value">{tickets.length || 0}</div>
+                <div className="stat-label">Total Tickets</div>
+              </div>
+              <div className="stat-card schedules">
+                <div className="stat-value">{schedules.length || 0}</div>
+                <div className="stat-label">Bus Schedules</div>
+              </div>
+            </div>
+
+            {/* Action Buttons Grid */}
+            <div className="actions-grid">
+              <button 
+                className="action-button"
+                onClick={() => setActiveView("routes")}
+              >
+                <div className="action-icon">
+                  <i className="fas fa-route"></i>
+                </div>
+                <div className="action-text">Manage Routes</div>
+              </button>
+
+              <button 
+                className="action-button"
+                onClick={() => setActiveView("tickets")}
+              >
+                <div className="action-icon">
+                  <i className="fas fa-ticket-alt"></i>
+                </div>
+                <div className="action-text">Manage Tickets</div>
+              </button>
+
+              <button 
+                className="action-button"
+                onClick={() => setActiveView("schedules")}
+              >
+                <div className="action-icon">
+                  <i className="fas fa-calendar-alt"></i>
+                </div>
+                <div className="action-text">Assign Schedules</div>
+              </button>
+
+              <button 
+                className="action-button"
+                onClick={() => setActiveView("analytics")}
+              >
+                <div className="action-icon">
+                  <i className="fas fa-chart-line"></i>
+                </div>
+                <div className="action-text">View Analytics</div>
+              </button>
+
+              <button 
+                className="action-button"
+                onClick={() => setActiveView("users")}
+              >
+                <div className="action-icon">
+                  <i className="fas fa-users"></i>
+                </div>
+                <div className="action-text">Manage Users</div>
+              </button>
+
+              <button 
+                className="action-button"
+                onClick={() => setActiveView("dashboard")}
+              >
+                <div className="action-icon">
+                  <i className="fas fa-home"></i>
+                </div>
+                <div className="action-text">Back to Dashboard</div>
+              </button>
+            </div>
+
+            {/* Recent Activity Section */}
+            <div className="dashboard-section">
+              <h2 className="section-title">Recent Activity</h2>
+              <div className="data-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Route Name</th>
+                      <th>Origin</th>
+                      <th>Destination</th>
+                      <th>Distance</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {routes.slice(0, 5).map((route) => (
+                      <tr key={route.id}>
+                        <td>{route.routeName}</td>
+                        <td>{route.origin}</td>
+                        <td>{route.destination}</td>
+                        <td>{route.distance} km</td>
+                        <td>
+                          <span className="status-badge status-active">Active</span>
+                        </td>
+                      </tr>
+                    ))}
+                    {routes.length === 0 && (
+                      <tr>
+                        <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
+                          No routes available
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Notification Section */}
+            <div className="dashboard-section">
+              <h2 className="section-title">Send Notification</h2>
+              <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Enter notification message..."
+                  value={notificationMessage}
+                  onChange={(e) => setNotificationMessage(e.target.value)}
+                  style={{ flex: 1 }}
+                />
+                <button 
+                  className="btn btn-primary"
+                  onClick={handleSendNotification}
+                >
+                  Send Notification
+                </button>
+              </div>
+            </div>
+          </>
+        );
     }
   };
-
-  // Render main dashboard
-  const renderDashboard = () => (
-    <div className="admin-dashboard">
-      <div className="dashboard-container">
-        {/* Header Section */}
-        <div className="dashboard-header">
-          <div>
-            <h1 className="dashboard-title">Admin Dashboard</h1>
-            <p className="dashboard-subtitle">Welcome back, {adminName}! Manage your transit system efficiently.</p>
-          </div>
-          <button className="logout-button" onClick={handleLogout}>
-            <i className="fas fa-sign-out-alt"></i> Logout
-          </button>
-        </div>
-
-        {/* Statistics Grid */}
-        <div className="stats-grid">
-          <div className="stat-card users">
-            <div className="stat-value">{users.length || 0}</div>
-            <div className="stat-label">Total Users</div>
-          </div>
-          <div className="stat-card routes">
-            <div className="stat-value">{routes.length || 0}</div>
-            <div className="stat-label">Active Routes</div>
-          </div>
-          <div className="stat-card tickets">
-            <div className="stat-value">{tickets.length || 0}</div>
-            <div className="stat-label">Total Tickets</div>
-          </div>
-          <div className="stat-card schedules">
-            <div className="stat-value">{schedules.length || 0}</div>
-            <div className="stat-label">Bus Schedules</div>
-          </div>
-        </div>
-
-        {/* Action Buttons Grid */}
-        <div className="actions-grid">
-          <button 
-            className="action-button"
-            onClick={() => setActiveView("routes")}
-          >
-            <div className="action-icon">
-              <i className="fas fa-route"></i>
-            </div>
-            <div className="action-text">Manage Routes</div>
-          </button>
-
-          <button 
-            className="action-button"
-            onClick={() => setActiveView("tickets")}
-          >
-            <div className="action-icon">
-              <i className="fas fa-ticket-alt"></i>
-            </div>
-            <div className="action-text">Manage Tickets</div>
-          </button>
-
-          <button 
-            className="action-button"
-            onClick={() => setActiveView("schedules")}
-          >
-            <div className="action-icon">
-              <i className="fas fa-calendar-alt"></i>
-            </div>
-            <div className="action-text">Assign Schedules</div>
-          </button>
-
-          <button 
-            className="action-button"
-            onClick={() => setActiveView("analytics")}
-          >
-            <div className="action-icon">
-              <i className="fas fa-chart-line"></i>
-            </div>
-            <div className="action-text">View Analytics</div>
-          </button>
-
-          <button 
-            className="action-button"
-            onClick={() => setActiveView("users")}
-          >
-            <div className="action-icon">
-              <i className="fas fa-users"></i>
-            </div>
-            <div className="action-text">Manage Users</div>
-          </button>
-
-          <button 
-            className="action-button"
-            onClick={() => setActiveView("dashboard")}
-          >
-            <div className="action-icon">
-              <i className="fas fa-home"></i>
-            </div>
-            <div className="action-text">Back to Dashboard</div>
-          </button>
-        </div>
-
-        {/* Recent Activity Section */}
-        <div className="dashboard-section">
-          <h2 className="section-title">Recent Activity</h2>
-          <div className="data-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Route Name</th>
-                  <th>Origin</th>
-                  <th>Destination</th>
-                  <th>Distance</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {routes.slice(0, 5).map((route) => (
-                  <tr key={route.id}>
-                    <td>{route.routeName}</td>
-                    <td>{route.origin}</td>
-                    <td>{route.destination}</td>
-                    <td>{route.distance} km</td>
-                    <td>
-                      <span className="status-badge status-active">Active</span>
-                    </td>
-                  </tr>
-                ))}
-                {routes.length === 0 && (
-                  <tr>
-                    <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
-                      No routes available
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Notification Section */}
-        <div className="dashboard-section">
-          <h2 className="section-title">Send Notification</h2>
-          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Enter notification message..."
-              value={notificationMessage}
-              onChange={(e) => setNotificationMessage(e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <button 
-              className="btn btn-primary"
-              onClick={handleSendNotification}
-            >
-              Send Notification
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div className="admin-dashboard">

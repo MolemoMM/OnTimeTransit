@@ -391,30 +391,35 @@
 /* Navigation Pills */
 .nav-pills {
   display: flex;
-  gap: 15px;
+  gap: 8px;
   margin-bottom: 30px;
-  padding: 20px;
+  padding: 15px;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   border-radius: 15px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
+  overflow-x: auto;
 }
 
 .nav-pill {
   background: rgba(255, 255, 255, 0.2);
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 25px;
+  padding: 8px 16px;
+  border-radius: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
+  font-size: 14px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
+  min-width: fit-content;
+  flex-shrink: 0;
 }
 
 .nav-pill:hover {
@@ -430,7 +435,25 @@
 }
 
 .nav-pill i {
-  font-size: 16px;
+  font-size: 14px;
+}
+
+/* Add responsive behavior for very small screens */
+@media (max-width: 480px) {
+  .nav-pills {
+    gap: 4px;
+    padding: 10px;
+  }
+  
+  .nav-pill {
+    padding: 6px 12px;
+    font-size: 12px;
+    gap: 4px;
+  }
+  
+  .nav-pill i {
+    font-size: 12px;
+  }
 }
 
 /* Content Area */
