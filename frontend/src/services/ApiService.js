@@ -7,7 +7,7 @@ const SCHEDULE_SERVICE_URL = "http://localhost:8085/api/schedules";
 const TICKET_SERVICE_URL = "http://localhost:8087/api/tickets";
 const AUTH_SERVICE_URL = "http://localhost:8089/api/auth";
 const USER_SERVICE_URL = "http://localhost:8089/api/users";
-const NOTIFICATION_SERVICE_URL = "http://localhost:8083/api/notifications";
+const NOTIFICATION_SERVICE_URL = "http://localhost:8085/api/notifications";
 const ANALYTICS_SERVICE_URL = "http://localhost:8086/api/analytics";
 
 const token = localStorage.getItem("token"); // Retrieve token from localStorage
@@ -119,25 +119,6 @@ const ApiService = {
       })
       .then((res) => res.data)
       .catch(handleApiError),
-  updateTicketStatus: async (id, status) => {
-    try {
-      const response = await axiosInstance.put(`${TICKET_SERVICE_URL}/${id}/status`, { status });
-      return response.data;
-    } catch (error) {
-      handleApiError(error);
-      throw error;
-    }
-  },
-  // Add method to get tickets for current user
-  getUserTickets: async () => {
-    try {
-      const response = await axiosInstance.get(`${TICKET_SERVICE_URL}/user/my-tickets`);
-      return response.data;
-    } catch (error) {
-      handleApiError(error);
-      throw error;
-    }
-  },
 
   // Authentication
   login: (credentials) => axiosInstance.post(`${AUTH_SERVICE_URL}/login`, credentials).then((res) => res.data).catch(handleApiError),

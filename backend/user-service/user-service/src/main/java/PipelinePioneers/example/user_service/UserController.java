@@ -6,12 +6,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Map;
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
@@ -19,10 +16,7 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
-        // Set default role if not specified
-        if (user.getRole() == null) {
-            user.setRole(UserRole.USER);
-        }
+        // Removed role-related logic
         userRepository.save(user);
         return ResponseEntity.ok("User registered successfully");
     }
@@ -33,16 +27,7 @@ public class UserController {
         if (user.isEmpty() || !user.get().getPassword().equals(loginRequest.getPassword())) {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
-        
-        // Return user info with role for frontend
-        Map<String, Object> response = new HashMap<>();
-        response.put("id", user.get().getId());
-        response.put("username", user.get().getUsername());
-        response.put("email", user.get().getEmail());
-        response.put("role", user.get().getRole().toString());
-        response.put("phoneNumber", user.get().getPhoneNumber());
-        
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(user.get());
     }
 
     @GetMapping("/{id}")
@@ -54,10 +39,6 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        // Set default role if not specified
-        if (user.getRole() == null) {
-            user.setRole(UserRole.USER);
-        }
         userRepository.save(user);
         return ResponseEntity.ok(user);
     }
@@ -71,30 +52,15 @@ public class UserController {
         user.setPassword(updatedUser.getPassword());
         user.setEmail(updatedUser.getEmail());
         user.setPhoneNumber(updatedUser.getPhoneNumber());
-        
-        // Only allow role update if specified
-        if (updatedUser.getRole() != null) {
-            user.setRole(updatedUser.getRole());
-        }
 
         userRepository.save(user);
         return ResponseEntity.ok(user);
     }
 
-    // Get all users (admin only in practice)
+    // Get all users
     @GetMapping
     public List<User> getAllUsers() {
         return userRepository.findAll();
-    }
-
-    // Get user statistics (admin only)
-    @GetMapping("/statistics")
-    public ResponseEntity<Map<String, Object>> getUserStatistics() {
-        Map<String, Object> stats = new HashMap<>();
-        stats.put("total", userRepository.count());
-        stats.put("admins", userRepository.countByRole(UserRole.ADMIN));
-        stats.put("users", userRepository.countByRole(UserRole.USER));
-        return ResponseEntity.ok(stats);
     }
 
     @DeleteMapping("/{id}")
