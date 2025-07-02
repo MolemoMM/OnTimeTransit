@@ -12,7 +12,7 @@ const AuthService = {
         console.log("Login successful. Role:", role);
         localStorage.setItem("role", role); // Store the role in localStorage
         localStorage.setItem("token", token); // Store the token in localStorage
-        localStorage.setItem("isAuthenticated", true); // Mark the user as authenticated
+        localStorage.setItem("isAuthenticated", JSON.stringify(true)); // Store as JSON boolean
         return role; // Return the role for further processing
       })
       .catch((error) => {

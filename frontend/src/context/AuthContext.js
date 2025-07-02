@@ -13,16 +13,24 @@ export const AuthProvider = ({ children }) => {
 
   const navigate = useNavigate();
 
+  // Sync state with localStorage
   useEffect(() => {
     localStorage.setItem("isAuthenticated", JSON.stringify(isAuthenticated));
-    localStorage.setItem("role", role);
+    if (role) {
+      localStorage.setItem("role", role);
+    } else {
+      localStorage.removeItem("role");
+    }
   }, [isAuthenticated, role]);
 
   const login = (userRole) => {
     console.log("Logging in with role:", userRole);
     setIsAuthenticated(true);
     setRole(userRole);
-    navigate(userRole === "ADMIN" ? "/admin" : "/user");
+    // Navigation will be handled by the component after state update
+    setTimeout(() => {
+      navigate(userRole === "ADMIN" ? "/admin" : "/user");
+    }, 100);
   };
 
   const logout = () => {

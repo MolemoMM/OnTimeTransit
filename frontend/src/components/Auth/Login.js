@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import AuthService from "../../services/AuthService";
+import { useAuth } from "../../context/AuthContext";
 import "./login.css";
 
 function Login() {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const navigate = useNavigate();
+  const { login } = useAuth(); // Get login function from AuthContext
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,15 +23,9 @@ function Login() {
     AuthService.login(credentials)
       .then((role) => {
         console.log("User role:", role);
-        if (role === "ADMIN") {
-          console.log("Navigating to admin dashboard...");
-          navigate("/admin");
-        } else if (role === "USER") {
-          console.log("Navigating to user dashboard...");
-          navigate("/user");
-        } else {
-          toast.error("Unexpected role received from the server.");
-        }
+        // Update AuthContext
+        login(role);
+        toast.success("Login successful!");
       })
       .catch((error) => {
         toast.error("Login failed. Please check your credentials.");

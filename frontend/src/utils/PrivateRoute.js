@@ -1,12 +1,12 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import AuthService from "../services/AuthService";
+import { useAuth } from "../context/AuthContext";
 
 const PrivateRoute = ({ children, allowedRoles = [] }) => {
-  const role = AuthService.getRole(); // Get the role from localStorage
+  const { isAuthenticated, role } = useAuth(); // Use AuthContext instead of AuthService
 
-  if (!role) {
-    // If no role is found, redirect to login
+  if (!isAuthenticated || !role) {
+    // If not authenticated or no role, redirect to login
     return <Navigate to="/login" />;
   }
 

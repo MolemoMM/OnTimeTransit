@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./adminDashboard.css";
-import { useNavigate, Link, Routes, Route, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ApiService } from "../../services/ApiService";
 import ManageTickets from "./ManageTickets";
@@ -16,9 +16,9 @@ function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [analyticsData, setAnalyticsData] = useState({});
   const [notificationMessage, setNotificationMessage] = useState("");
+  const [activeView, setActiveView] = useState("dashboard"); // New state for active view
 
   const navigate = useNavigate();
-  const location = useLocation();
   const adminName = localStorage.getItem("adminName") || "Admin";
 
   // Fetch data for dashboard
@@ -72,6 +72,32 @@ function AdminDashboard() {
     }
   };
 
+  // Render content based on active view
+  const renderContent = () => {
+    switch (activeView) {
+      case "routes":
+        return <ManageRoutes />;
+      case "tickets":
+        return <ManageTickets />;
+      case "schedules":
+        return <AssignExistingSchedule />;
+      case "analytics":
+        return <Analytics data={{
+          labels: ["Total Tickets", "Total Routes", "Total Schedules", "Total Users"],
+          values: [
+            analyticsData.totalTickets || tickets.length || 0,
+            analyticsData.totalRoutes || routes.length || 0,
+            analyticsData.totalSchedules || schedules.length || 0,
+            analyticsData.totalUsers || users.length || 0,
+          ],
+        }} />;
+      case "users":
+        return <ViewUsers />;
+      default:
+        return renderDashboard();
+    }
+  };
+
   // Render main dashboard
   const renderDashboard = () => (
     <div className="admin-dashboard">
@@ -111,7 +137,7 @@ function AdminDashboard() {
         <div className="actions-grid">
           <button 
             className="action-button"
-            onClick={() => navigate("/admin/routes")}
+            onClick={() => setActiveView("routes")}
           >
             <div className="action-icon">
               <i className="fas fa-route"></i>
@@ -121,7 +147,7 @@ function AdminDashboard() {
 
           <button 
             className="action-button"
-            onClick={() => navigate("/admin/tickets")}
+            onClick={() => setActiveView("tickets")}
           >
             <div className="action-icon">
               <i className="fas fa-ticket-alt"></i>
@@ -131,7 +157,7 @@ function AdminDashboard() {
 
           <button 
             className="action-button"
-            onClick={() => navigate("/admin/schedules/assign")}
+            onClick={() => setActiveView("schedules")}
           >
             <div className="action-icon">
               <i className="fas fa-calendar-alt"></i>
@@ -141,7 +167,7 @@ function AdminDashboard() {
 
           <button 
             className="action-button"
-            onClick={() => navigate("/admin/analytics")}
+            onClick={() => setActiveView("analytics")}
           >
             <div className="action-icon">
               <i className="fas fa-chart-line"></i>
@@ -151,7 +177,7 @@ function AdminDashboard() {
 
           <button 
             className="action-button"
-            onClick={() => navigate("/admin/users")}
+            onClick={() => setActiveView("users")}
           >
             <div className="action-icon">
               <i className="fas fa-users"></i>
@@ -161,12 +187,12 @@ function AdminDashboard() {
 
           <button 
             className="action-button"
-            onClick={() => navigate("/admin/routes/add")}
+            onClick={() => setActiveView("dashboard")}
           >
             <div className="action-icon">
-              <i className="fas fa-plus"></i>
+              <i className="fas fa-home"></i>
             </div>
-            <div className="action-text">Add New Route</div>
+            <div className="action-text">Back to Dashboard</div>
           </button>
         </div>
 
@@ -233,22 +259,65 @@ function AdminDashboard() {
   );
 
   return (
-    <Routes>
-      <Route path="/" element={renderDashboard()} />
-      <Route path="/tickets" element={<ManageTickets />} />
-      <Route path="/routes" element={<ManageRoutes />} />
-      <Route path="/users" element={<ViewUsers />} />
-      <Route path="/schedules/assign" element={<AssignExistingSchedule />} />
-      <Route path="/analytics" element={<Analytics data={{
-        labels: ["Total Tickets", "Total Routes", "Total Schedules", "Total Users"],
-        values: [
-          analyticsData.totalTickets || tickets.length || 0,
-          analyticsData.totalRoutes || routes.length || 0,
-          analyticsData.totalSchedules || schedules.length || 0,
-          analyticsData.totalUsers || users.length || 0,
-        ],
-      }} />} />
-    </Routes>
+    <div className="admin-dashboard">
+      <div className="dashboard-container">
+        {/* Header Section */}
+        <div className="dashboard-header">
+          <div>
+            <h1 className="dashboard-title">Admin Dashboard</h1>
+            <p className="dashboard-subtitle">Welcome back, {adminName}! Manage your transit system efficiently.</p>
+          </div>
+          <button className="logout-button" onClick={handleLogout}>
+            <i className="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
+
+        {/* Navigation Pills */}
+        <div className="nav-pills">
+          <button 
+            className={`nav-pill ${activeView === "dashboard" ? "active" : ""}`}
+            onClick={() => setActiveView("dashboard")}
+          >
+            <i className="fas fa-tachometer-alt"></i> Dashboard
+          </button>
+          <button 
+            className={`nav-pill ${activeView === "routes" ? "active" : ""}`}
+            onClick={() => setActiveView("routes")}
+          >
+            <i className="fas fa-route"></i> Routes
+          </button>
+          <button 
+            className={`nav-pill ${activeView === "tickets" ? "active" : ""}`}
+            onClick={() => setActiveView("tickets")}
+          >
+            <i className="fas fa-ticket-alt"></i> Tickets
+          </button>
+          <button 
+            className={`nav-pill ${activeView === "schedules" ? "active" : ""}`}
+            onClick={() => setActiveView("schedules")}
+          >
+            <i className="fas fa-calendar-alt"></i> Schedules
+          </button>
+          <button 
+            className={`nav-pill ${activeView === "analytics" ? "active" : ""}`}
+            onClick={() => setActiveView("analytics")}
+          >
+            <i className="fas fa-chart-line"></i> Analytics
+          </button>
+          <button 
+            className={`nav-pill ${activeView === "users" ? "active" : ""}`}
+            onClick={() => setActiveView("users")}
+          >
+            <i className="fas fa-users"></i> Users
+          </button>
+        </div>
+
+        {/* Content Area */}
+        <div className="content-area">
+          {renderContent()}
+        </div>
+      </div>
+    </div>
   );
 }
 
