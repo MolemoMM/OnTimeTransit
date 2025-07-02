@@ -182,7 +182,7 @@ function UserDashboard() {
 
             {/* Quick Actions */}
             <div className="action-grid">
-              <div className="action-card" onClick={() => navigate("/user/book-ticket")}>
+              <div className="action-card" onClick={() => setActiveSection('booking')}>
                 <div className="action-icon">
                   <i className="fas fa-plus-circle"></i>
                 </div>
@@ -239,7 +239,7 @@ function UserDashboard() {
               <h2><i className="fas fa-ticket-alt"></i> My Tickets</h2>
               <button 
                 className="btn btn-primary"
-                onClick={() => navigate("/user/book-ticket")}
+                onClick={() => setActiveSection('booking')}
               >
                 <i className="fas fa-plus"></i> Book New Ticket
               </button>
@@ -288,7 +288,7 @@ function UserDashboard() {
                   <p>You haven't booked any tickets yet.</p>
                   <button 
                     className="btn btn-primary"
-                    onClick={() => navigate("/user/book-ticket")}
+                    onClick={() => setActiveSection('booking')}
                   >
                     Book Your First Ticket
                   </button>
@@ -325,7 +325,7 @@ function UserDashboard() {
                     className="btn btn-primary route-book-btn"
                     onClick={() => {
                       setSelectedRoute(route);
-                      navigate("/user/book-ticket", { state: { selectedRoute: route } });
+                      setActiveSection('booking');
                     }}
                   >
                     <i className="fas fa-ticket-alt"></i> Book Ticket
@@ -337,6 +337,176 @@ function UserDashboard() {
                   <i className="fas fa-route"></i>
                   <h3>No Routes Available</h3>
                   <p>There are currently no routes available.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case 'booking':
+        return (
+          <div className="dashboard-content">
+            <div className="content-header">
+              <h2><i className="fas fa-plus-circle"></i> Book New Ticket</h2>
+            </div>
+            
+            {/* Route Selection */}
+            <div className="booking-section">
+              <div className="section-card">
+                <h3><i className="fas fa-route"></i> Select Route</h3>
+                <div className="routes-selection-grid">
+                  {routes.map((route, index) => (
+                    <div 
+                      key={index} 
+                      className={`route-selection-card ${selectedRoute?.id === route.id ? 'selected' : ''}`}
+                      onClick={() => setSelectedRoute(route)}
+                    >
+                      <div className="route-info">
+                        <h4>{route.routeName || route.name}</h4>
+                        <div className="route-details">
+                          <span><i className="fas fa-map-marker-alt"></i> From: {route.source || route.startLocation}</span>
+                          <span><i className="fas fa-map-marker-alt"></i> To: {route.destination || route.endLocation}</span>
+                          <span><i className="fas fa-clock"></i> Departure: {route.departureTime}</span>
+                          <span><i className="fas fa-dollar-sign"></i> Price: ${route.price || '25.00'}</span>
+                        </div>
+                      </div>
+                      {selectedRoute?.id === route.id && (
+                        <div className="selected-indicator">
+                          <i className="fas fa-check-circle"></i>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Booking Form */}
+              {selectedRoute && (
+                <div className="section-card">
+                  <h3><i className="fas fa-ticket-alt"></i> Booking Details</h3>
+                  <form onSubmit={handleBookTicket} className="booking-form">
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label className="form-label">
+                          <i className="fas fa-user"></i> Passenger Name
+                        </label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          name="passengerName"
+                          value={ticket.passengerName}
+                          onChange={handleChange}
+                          placeholder="Enter passenger name"
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">
+                          <i className="fas fa-envelope"></i> Email Address
+                        </label>
+                        <input
+                          type="email"
+                          className="form-input"
+                          name="email"
+                          value={ticket.email}
+                          onChange={handleChange}
+                          placeholder="Enter email address"
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label className="form-label">
+                          <i className="fas fa-phone"></i> Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          className="form-input"
+                          name="phoneNumber"
+                          value={ticket.phoneNumber}
+                          onChange={handleChange}
+                          placeholder="Enter phone number"
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">
+                          <i className="fas fa-chair"></i> Seat Number
+                        </label>
+                        <select
+                          className="form-input"
+                          name="seatNumber"
+                          value={ticket.seatNumber}
+                          onChange={handleChange}
+                          required
+                        >
+                          <option value="">Select a seat</option>
+                          {availableSeats.map((seat) => (
+                            <option key={seat} value={seat}>
+                              Seat {seat}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label className="form-label">
+                          <i className="fas fa-dollar-sign"></i> Price
+                        </label>
+                        <input
+                          type="number"
+                          className="form-input"
+                          name="price"
+                          value={ticket.price}
+                          onChange={handleChange}
+                          placeholder="Enter price"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-actions">
+                      <button type="submit" className="btn btn-primary btn-large" disabled={loading}>
+                        {loading ? (
+                          <>
+                            <i className="fas fa-spinner fa-spin"></i> Booking...
+                          </>
+                        ) : (
+                          <>
+                            <i className="fas fa-ticket-alt"></i> Book Ticket
+                          </>
+                        )}
+                      </button>
+                      <button 
+                        type="button" 
+                        className="btn btn-secondary"
+                        onClick={() => {
+                          setSelectedRoute(null);
+                          setTicket({
+                            passengerName: "",
+                            email: "",
+                            phoneNumber: "",
+                            seatNumber: "",
+                            price: 0,
+                          });
+                        }}
+                      >
+                        <i className="fas fa-times"></i> Clear
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {routes.length === 0 && (
+                <div className="no-data">
+                  <i className="fas fa-route"></i>
+                  <h3>No Routes Available</h3>
+                  <p>There are currently no routes available for booking.</p>
                 </div>
               )}
             </div>
@@ -366,7 +536,7 @@ function UserDashboard() {
           <div className="header-actions">
             <button 
               className="btn btn-primary"
-              onClick={() => navigate("/user/book-ticket")}
+              onClick={() => setActiveSection('booking')}
             >
               <i className="fas fa-plus"></i> Quick Book
             </button>
@@ -392,6 +562,12 @@ function UserDashboard() {
             onClick={() => setActiveSection('routes')}
           >
             <i className="fas fa-route"></i> Routes
+          </button>
+          <button 
+            className={`nav-btn ${activeSection === 'booking' ? 'active' : ''}`}
+            onClick={() => setActiveSection('booking')}
+          >
+            <i className="fas fa-plus-circle"></i> Book Ticket
           </button>
         </div>
 
