@@ -82,7 +82,7 @@ function AdminDashboard() {
       case "schedules":
         return <AssignExistingSchedule />;
       case "analytics":
-        return <Analytics data={tickets} />;
+        return <Analytics />;
       case "users":
         return <ViewUsers />;
       default:

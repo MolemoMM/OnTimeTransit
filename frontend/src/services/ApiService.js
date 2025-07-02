@@ -138,9 +138,47 @@ const ApiService = {
   sendNotification: (message) =>
     axiosInstance.post(`${NOTIFICATION_SERVICE_URL}/send`, { message }).then((res) => res.data).catch(handleApiError),
 
-  // Analytics
+  // Analytics - keep existing method
   getAnalyticsSummary: () =>
     axiosInstance.get(`${ANALYTICS_SERVICE_URL}/summary`).then((res) => res.data).catch(handleApiError),
+  
+  getTicketAnalytics: () =>
+    axiosInstance.get(`${TICKET_SERVICE_URL}/analytics`).then((res) => res.data).catch(() => []),
+  
+  getRouteAnalytics: () =>
+    axiosInstance.get(`${ROUTE_SERVICE_URL}/analytics`).then((res) => res.data).catch(() => []),
+  
+  getUserAnalytics: () =>
+    axiosInstance.get(`${USER_SERVICE_URL}/analytics`).then((res) => res.data).catch(() => []),
+  
+  getRevenueAnalytics: () =>
+    axiosInstance.get(`${TICKET_SERVICE_URL}/revenue`).then((res) => res.data).catch(() => ({ totalRevenue: 0, monthlyRevenue: [] })),
+  
+  getDashboardStats: async () => {
+    try {
+      const [tickets, routes, users, schedules] = await Promise.all([
+        axiosInstance.get(`${TICKET_SERVICE_URL}/count`).then(res => res.data).catch(() => 0),
+        axiosInstance.get(`${ROUTE_SERVICE_URL}/count`).then(res => res.data).catch(() => 0),
+        axiosInstance.get(`${USER_SERVICE_URL}/count`).then(res => res.data).catch(() => 0),
+        axiosInstance.get(`${SCHEDULE_SERVICE_URL}/count`).then(res => res.data).catch(() => 0),
+      ]);
+      
+      return {
+        totalTickets: tickets,
+        totalRoutes: routes,
+        totalUsers: users,
+        totalSchedules: schedules
+      };
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+      return {
+        totalTickets: 0,
+        totalRoutes: 0,
+        totalUsers: 0,
+        totalSchedules: 0
+      };
+    }
+  },
 };
 
-export { ApiService }; 
+export { ApiService };

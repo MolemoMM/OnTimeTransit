@@ -12,54 +12,68 @@ import {
   PointElement,
   Filler
 } from "chart.js";
+import { ApiService } from "../services/ApiService";
+import { toast } from "react-toastify";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, LineElement, PointElement, Filler);
 
-function Analytics({ data }) {
+function Analytics() {
   const [selectedChart, setSelectedChart] = useState('overview');
   const [analyticsData, setAnalyticsData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [realDataAvailable, setRealDataAvailable] = useState(false);
 
   useEffect(() => {
-    // Process and enhance the data for better analytics
-    if (data && data.length > 0) {
-      processAnalyticsData(data);
-    } else {
-      // Generate sample data for demonstration when no real data is available
-      generateSampleData();
-    }
-  }, [data]);
+    fetchRealData();
+  }, []);
 
-  const generateSampleData = () => {
-    // Create sample data for demonstration
-    const sampleTickets = [
-      { id: 1, status: 'Confirmed', routeName: 'New York → Boston', travelDateTime: new Date('2024-11-15').toISOString() },
-      { id: 2, status: 'Confirmed', routeName: 'Boston → New York', travelDateTime: new Date('2024-12-10').toISOString() },
-      { id: 3, status: 'Pending', routeName: 'New York → Washington', travelDateTime: new Date('2024-12-20').toISOString() },
-      { id: 4, status: 'Canceled', routeName: 'Washington → New York', travelDateTime: new Date('2024-11-25').toISOString() },
-      { id: 5, status: 'Confirmed', routeName: 'New York → Boston', travelDateTime: new Date('2025-01-05').toISOString() },
-      { id: 6, status: 'Confirmed', routeName: 'Boston → Philadelphia', travelDateTime: new Date('2025-01-10').toISOString() },
-      { id: 7, status: 'Pending', routeName: 'Philadelphia → New York', travelDateTime: new Date('2024-10-15').toISOString() },
-      { id: 8, status: 'Confirmed', routeName: 'New York → Boston', travelDateTime: new Date('2024-09-20').toISOString() },
-    ];
-    processAnalyticsData(sampleTickets);
+  const fetchRealData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Fetch all the data from different services
+      const [tickets, routes, users, schedules, analyticsSummary] = await Promise.all([
+        ApiService.getTickets().catch(() => []),
+        ApiService.getRoutes().catch(() => []),
+        ApiService.getAllUsers().catch(() => []),
+        ApiService.getSchedules().catch(() => []),
+        ApiService.getAnalyticsSummary().catch(() => null)
+      ]);
+
+      // Check if we have real data
+      if (tickets.length > 0 || routes.length > 0 || users.length > 0) {
+        setRealDataAvailable(true);
+        processRealAnalyticsData(tickets, routes, users, schedules, analyticsSummary);
+      } else {
+        setRealDataAvailable(false);
+        generateSampleData();
+      }
+    } catch (error) {
+      console.error("Error fetching analytics data:", error);
+      toast.error("Failed to load analytics data");
+      setRealDataAvailable(false);
+      generateSampleData();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const processAnalyticsData = (tickets) => {
-    // Status distribution
+  const processRealAnalyticsData = (tickets, routes, users, schedules, analyticsSummary) => {
+    // Status distribution from real tickets
     const statusCounts = tickets.reduce((acc, ticket) => {
       const status = ticket.status || 'Unknown';
       acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, {});
 
-    // Route popularity
+    // Route popularity from real tickets
     const routeCounts = tickets.reduce((acc, ticket) => {
       const route = ticket.routeName || 'Unknown Route';
       acc[route] = (acc[route] || 0) + 1;
       return acc;
     }, {});
 
-    // Monthly trends (last 6 months)
+    // Monthly trends from real tickets (last 6 months)
     const monthlyData = {};
     const last6Months = [];
     for (let i = 5; i >= 0; i--) {
@@ -80,15 +94,75 @@ function Analytics({ data }) {
       }
     });
 
+    // Calculate revenue (you might want to add actual price field to tickets)
+    const confirmedTickets = tickets.filter(t => t.status === 'Confirmed');
+    const totalRevenue = confirmedTickets.length * 150; // Default price, update with real ticket prices
+
+    // User analytics
+    const userRoles = users.reduce((acc, user) => {
+      const role = user.role || 'user';
+      acc[role] = (acc[role] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Route analytics
+    const routesByStatus = routes.reduce((acc, route) => {
+      const status = route.status || 'active';
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+
     setAnalyticsData({
       statusCounts,
       routeCounts,
       monthlyData: last6Months.map(month => monthlyData[month]),
       monthLabels: last6Months,
       totalTickets: tickets.length,
-      totalRevenue: tickets.length * 150, // Assuming average ticket price
-      activeRoutes: Object.keys(routeCounts).length
+      confirmedTickets: confirmedTickets.length,
+      totalRevenue,
+      activeRoutes: routes.length,
+      totalUsers: users.length,
+      userRoles,
+      routesByStatus,
+      totalSchedules: schedules.length,
+      avgTicketsPerRoute: routes.length > 0 ? (tickets.length / routes.length).toFixed(1) : 0,
+      successRate: tickets.length > 0 ? ((confirmedTickets.length / tickets.length) * 100).toFixed(1) : 0,
+      // Include analytics summary if available from backend
+      ...(analyticsSummary || {})
     });
+  };
+
+  const generateSampleData = () => {
+    // Create sample data for demonstration when no real data is available
+    const sampleTickets = [
+      { id: 1, status: 'Confirmed', routeName: 'New York → Boston', travelDateTime: new Date('2024-11-15').toISOString() },
+      { id: 2, status: 'Confirmed', routeName: 'Boston → New York', travelDateTime: new Date('2024-12-10').toISOString() },
+      { id: 3, status: 'Pending', routeName: 'New York → Washington', travelDateTime: new Date('2024-12-20').toISOString() },
+      { id: 4, status: 'Canceled', routeName: 'Washington → New York', travelDateTime: new Date('2024-11-25').toISOString() },
+      { id: 5, status: 'Confirmed', routeName: 'New York → Boston', travelDateTime: new Date('2025-01-05').toISOString() },
+      { id: 6, status: 'Confirmed', routeName: 'Boston → Philadelphia', travelDateTime: new Date('2025-01-10').toISOString() },
+      { id: 7, status: 'Pending', routeName: 'Philadelphia → New York', travelDateTime: new Date('2024-10-15').toISOString() },
+      { id: 8, status: 'Confirmed', routeName: 'New York → Boston', travelDateTime: new Date('2024-09-20').toISOString() },
+    ];
+    
+    const sampleRoutes = [
+      { id: 1, startPoint: 'New York', endPoint: 'Boston', status: 'active' },
+      { id: 2, startPoint: 'Boston', endPoint: 'New York', status: 'active' },
+      { id: 3, startPoint: 'New York', endPoint: 'Washington', status: 'active' },
+    ];
+    
+    const sampleUsers = [
+      { id: 1, username: 'admin', role: 'admin' },
+      { id: 2, username: 'user1', role: 'user' },
+      { id: 3, username: 'user2', role: 'user' },
+    ];
+    
+    processRealAnalyticsData(sampleTickets, sampleRoutes, sampleUsers, [], null);
+  };
+
+  const processAnalyticsData = (tickets) => {
+    // Legacy method for backward compatibility
+    processRealAnalyticsData(tickets, [], [], [], null);
   };
 
   const getChartColors = (count) => {
@@ -242,7 +316,7 @@ function Analytics({ data }) {
           <h2 className="modern-card-title">
             <i className="fas fa-chart-bar" style={{ marginRight: '12px', color: '#667eea' }}></i>
             Analytics Dashboard
-            {(!data || data.length === 0) && (
+            {!realDataAvailable && (
               <span style={{ 
                 fontSize: '12px', 
                 fontWeight: 'normal', 
@@ -257,6 +331,15 @@ function Analytics({ data }) {
             )}
           </h2>
           <div style={{ display: 'flex', gap: '8px' }}>
+            <button 
+              className="modern-btn modern-btn-success"
+              onClick={fetchRealData}
+              disabled={isLoading}
+              style={{ padding: '8px 16px', fontSize: '12px' }}
+            >
+              <i className={`fas ${isLoading ? 'fa-spinner fa-spin' : 'fa-sync-alt'}`}></i>
+              {isLoading ? 'Loading...' : 'Refresh Data'}
+            </button>
             <button 
               className={`modern-btn ${selectedChart === 'overview' ? 'modern-btn-primary' : 'modern-btn'}`}
               onClick={() => setSelectedChart('overview')}
@@ -341,11 +424,32 @@ function Analytics({ data }) {
                 boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
               }}>
                 <i className="fas fa-percentage" style={{ fontSize: '32px', marginBottom: '12px' }}></i>
-                <div style={{ fontSize: '28px', fontWeight: 'bold' }}>
-                  {analyticsData.statusCounts.Confirmed ? 
-                    Math.round((analyticsData.statusCounts.Confirmed / analyticsData.totalTickets) * 100) : 0}%
-                </div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold' }}>{analyticsData.successRate}%</div>
                 <div style={{ fontSize: '14px', opacity: 0.9 }}>Success Rate</div>
+              </div>
+              <div style={{ 
+                background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', 
+                color: 'white',
+                padding: '24px', 
+                borderRadius: '16px', 
+                textAlign: 'center',
+                boxShadow: '0 10px 30px rgba(139, 92, 246, 0.3)'
+              }}>
+                <i className="fas fa-users" style={{ fontSize: '32px', marginBottom: '12px' }}></i>
+                <div style={{ fontSize: '28px', fontWeight: 'bold' }}>{analyticsData.totalUsers}</div>
+                <div style={{ fontSize: '14px', opacity: 0.9 }}>Total Users</div>
+              </div>
+              <div style={{ 
+                background: 'linear-gradient(135deg, #ec4899, #db2777)', 
+                color: 'white',
+                padding: '24px', 
+                borderRadius: '16px', 
+                textAlign: 'center',
+                boxShadow: '0 10px 30px rgba(236, 72, 153, 0.3)'
+              }}>
+                <i className="fas fa-chart-line" style={{ fontSize: '32px', marginBottom: '12px' }}></i>
+                <div style={{ fontSize: '28px', fontWeight: 'bold' }}>{analyticsData.avgTicketsPerRoute}</div>
+                <div style={{ fontSize: '14px', opacity: 0.9 }}>Avg Tickets/Route</div>
               </div>
             </div>
 
