@@ -102,6 +102,24 @@ const ApiService = {
       })
       .then((res) => res.data)
       .catch(handleApiError),
+  getAllTickets: async () => {
+    try {
+      const response = await axios.get(`${TICKET_SERVICE_URL}`);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch tickets:", error);
+      return [];
+    }
+  },
+  createTicket: async (ticket) => {
+    try {
+      const response = await axios.post(`${TICKET_SERVICE_URL}/book`, ticket);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to create ticket:", error);
+      throw error;
+    }
+  },
   bookTicket: (ticket) =>
     axiosInstance.post(`${TICKET_SERVICE_URL}/book`, ticket).then((res) => res.data).catch(handleApiError),
   cancelTicket: (id) =>

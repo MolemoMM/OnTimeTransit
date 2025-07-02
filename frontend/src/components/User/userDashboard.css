@@ -1049,6 +1049,50 @@
   color: #95a5a6;
 }
 
+/* Datetime-local input specific styling */
+.form-input[type="datetime-local"] {
+  color: #2c3e50;
+  background: rgba(255, 255, 255, 0.95);
+  cursor: pointer;
+}
+
+.form-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
+}
+
+.form-input[type="datetime-local"]::-webkit-datetime-edit {
+  padding: 0;
+}
+
+.form-input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+.form-input[type="datetime-local"]::-webkit-datetime-edit-text {
+  color: #2c3e50;
+  padding: 0 0.3em;
+}
+
+.form-input[type="datetime-local"]::-webkit-datetime-edit-month-field,
+.form-input[type="datetime-local"]::-webkit-datetime-edit-day-field,
+.form-input[type="datetime-local"]::-webkit-datetime-edit-year-field,
+.form-input[type="datetime-local"]::-webkit-datetime-edit-hour-field,
+.form-input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
+  color: #2c3e50;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
 .form-actions {
   display: flex;
   gap: 15px;

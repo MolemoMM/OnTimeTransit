@@ -15,8 +15,11 @@ function UserDashboard() {
     passengerName: "",
     email: "",
     phoneNumber: "",
-    seatNumber: "",
-    price: 0,
+    routeName: "",
+    travelDateTime: "",
+    seatNumber: 0,
+    price: 0.0,
+    status: "BOOKED"
   });
   const [availableSeats, setAvailableSeats] = useState([]);
   const [showBookingForm, setShowBookingForm] = useState(false);
@@ -46,13 +49,22 @@ function UserDashboard() {
       
       // Fetch routes
       const routesData = await ApiService.getRoutes();
-      setRoutes(routesData);
+      console.log("Fetched routes:", routesData);
+      setRoutes(routesData || []);
+      
+      // Fetch all schedules
+      const schedulesData = await ApiService.getSchedules();
+      console.log("Fetched schedules:", schedulesData);
+      setSchedules(schedulesData || []);
       
       // Calculate stats
       calculateStats(userTickets);
       
     } catch (error) {
+      console.error("Error fetching dashboard data:", error);
       toast.error("Failed to fetch dashboard data");
+      setRoutes([]);
+      setSchedules([]);
     } finally {
       setLoading(false);
     }
@@ -99,7 +111,8 @@ function UserDashboard() {
     const { name, value } = e.target;
     setTicket((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === 'seatNumber' ? parseInt(value) || 0 : 
+               name === 'price' ? parseFloat(value) || 0.0 : value,
     }));
   };
 
@@ -110,23 +123,34 @@ function UserDashboard() {
       return;
     }
 
+    if (!ticket.travelDateTime) {
+      toast.error("Please select a travel date and time.");
+      return;
+    }
+
     setLoading(true);
     try {
-      await ApiService.createTicket({
+      const ticketData = {
         ...ticket,
-        routeName: selectedRoute.routeName,
-        departureTime: selectedRoute.departureTime,
-        arrivalTime: selectedRoute.arrivalTime,
-      });
+        routeName: selectedRoute.routeName || selectedRoute.name,
+        travelDateTime: ticket.travelDateTime,
+        status: "BOOKED"
+      };
+      
+      await ApiService.createTicket(ticketData);
       toast.success("Ticket booked successfully!");
       setShowBookingForm(false);
       setTicket({
         passengerName: "",
         email: "",
         phoneNumber: "",
-        seatNumber: "",
-        price: 0,
+        routeName: "",
+        travelDateTime: "",
+        seatNumber: 0,
+        price: 0.0,
+        status: "BOOKED"
       });
+      setSelectedRoute(null);
       fetchDashboardData(); // Refresh data
     } catch (error) {
       toast.error("Failed to book ticket. Please try again.");
@@ -303,40 +327,90 @@ function UserDashboard() {
           <div className="dashboard-content">
             <div className="content-header">
               <h2><i className="fas fa-map-marked-alt"></i> Available Routes</h2>
+              <button 
+                className="btn btn-secondary"
+                onClick={() => fetchDashboardData()}
+              >
+                <i className="fas fa-sync-alt"></i> Refresh
+              </button>
             </div>
             <div className="routes-grid">
-              {routes.map((route, index) => (
-                <div key={index} className="route-card">
-                  <div className="route-header">
-                    <h4>{route.routeName || route.name}</h4>
-                    <span className="route-price">${route.price || '25.00'}</span>
-                  </div>
-                  <div className="route-details">
-                    <div className="route-stops">
-                      <span><i className="fas fa-map-marker-alt"></i> From: {route.source || route.startLocation}</span>
-                      <span><i className="fas fa-map-marker-alt"></i> To: {route.destination || route.endLocation}</span>
+              {routes.map((route, index) => {
+                // Find schedules for this route
+                const routeSchedules = schedules.filter(schedule => 
+                  schedule.routeId === route.id || 
+                  schedule.route?.id === route.id ||
+                  schedule.routeName === route.routeName
+                );
+                
+                return (
+                  <div key={route.id || index} className="route-card">
+                    <div className="route-header">
+                      <h4>{route.routeName || route.name || 'Unnamed Route'}</h4>
+                      <span className="route-price">${route.price || route.fare || '25.00'}</span>
                     </div>
-                    <div className="route-times">
-                      <span><i className="fas fa-clock"></i> Departure: {route.departureTime}</span>
-                      <span><i className="fas fa-clock"></i> Arrival: {route.arrivalTime}</span>
+                    <div className="route-details">
+                      <div className="route-stops">
+                        <span><i className="fas fa-map-marker-alt"></i> From: {route.source || route.startLocation || route.origin || 'N/A'}</span>
+                        <span><i className="fas fa-map-marker-alt"></i> To: {route.destination || route.endLocation || route.target || 'N/A'}</span>
+                      </div>
+                      <div className="route-info">
+                        <span><i className="fas fa-road"></i> Distance: {route.distance || 'N/A'} km</span>
+                        <span><i className="fas fa-clock"></i> Duration: {route.duration || 'N/A'}</span>
+                      </div>
+                      
+                      {/* Show available schedules for this route */}
+                      {routeSchedules.length > 0 && (
+                        <div className="route-schedules">
+                          <h5><i className="fas fa-calendar-alt"></i> Available Schedules:</h5>
+                          <div className="schedules-list">
+                            {routeSchedules.map((schedule, scheduleIndex) => (
+                              <div key={schedule.id || scheduleIndex} className="schedule-item">
+                                <span className="schedule-time">
+                                  <i className="fas fa-clock"></i>
+                                  {schedule.departureTime} - {schedule.arrivalTime}
+                                </span>
+                                <span className="schedule-frequency">
+                                  {schedule.frequency || 'Daily'}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {routeSchedules.length === 0 && (
+                        <div className="no-schedules">
+                          <i className="fas fa-info-circle"></i>
+                          <span>No schedules available for this route</span>
+                        </div>
+                      )}
                     </div>
+                    <button 
+                      className="btn btn-primary route-book-btn"
+                      onClick={() => {
+                        setSelectedRoute({...route, schedules: routeSchedules});
+                        setActiveSection('booking');
+                      }}
+                      disabled={routeSchedules.length === 0}
+                    >
+                      <i className="fas fa-ticket-alt"></i> 
+                      {routeSchedules.length > 0 ? 'Book Ticket' : 'No Schedules'}
+                    </button>
                   </div>
-                  <button 
-                    className="btn btn-primary route-book-btn"
-                    onClick={() => {
-                      setSelectedRoute(route);
-                      setActiveSection('booking');
-                    }}
-                  >
-                    <i className="fas fa-ticket-alt"></i> Book Ticket
-                  </button>
-                </div>
-              ))}
-              {routes.length === 0 && (
+                );
+              })}
+              {routes.length === 0 && !loading && (
                 <div className="no-data">
                   <i className="fas fa-route"></i>
                   <h3>No Routes Available</h3>
-                  <p>There are currently no routes available.</p>
+                  <p>There are currently no routes available. Please check back later or contact support.</p>
+                  <button 
+                    className="btn btn-primary"
+                    onClick={() => fetchDashboardData()}
+                  >
+                    <i className="fas fa-sync-alt"></i> Refresh Routes
+                  </button>
                 </div>
               )}
             </div>
@@ -348,40 +422,110 @@ function UserDashboard() {
           <div className="dashboard-content">
             <div className="content-header">
               <h2><i className="fas fa-plus-circle"></i> Book New Ticket</h2>
+              <button 
+                className="btn btn-secondary"
+                onClick={() => fetchDashboardData()}
+              >
+                <i className="fas fa-sync-alt"></i> Refresh Data
+              </button>
             </div>
             
             {/* Route Selection */}
             <div className="booking-section">
               <div className="section-card">
-                <h3><i className="fas fa-route"></i> Select Route</h3>
+                <h3><i className="fas fa-route"></i> Select Route & Schedule</h3>
                 <div className="routes-selection-grid">
-                  {routes.map((route, index) => (
-                    <div 
-                      key={index} 
-                      className={`route-selection-card ${selectedRoute?.id === route.id ? 'selected' : ''}`}
-                      onClick={() => setSelectedRoute(route)}
-                    >
-                      <div className="route-info">
-                        <h4>{route.routeName || route.name}</h4>
-                        <div className="route-details">
-                          <span><i className="fas fa-map-marker-alt"></i> From: {route.source || route.startLocation}</span>
-                          <span><i className="fas fa-map-marker-alt"></i> To: {route.destination || route.endLocation}</span>
-                          <span><i className="fas fa-clock"></i> Departure: {route.departureTime}</span>
-                          <span><i className="fas fa-dollar-sign"></i> Price: ${route.price || '25.00'}</span>
+                  {routes.map((route, index) => {
+                    const routeSchedules = schedules.filter(schedule => 
+                      schedule.routeId === route.id || 
+                      schedule.route?.id === route.id ||
+                      schedule.routeName === route.routeName
+                    );
+                    
+                    return (
+                      <div 
+                        key={route.id || index} 
+                        className={`route-selection-card ${selectedRoute?.id === route.id ? 'selected' : ''}`}
+                        onClick={() => routeSchedules.length > 0 && setSelectedRoute({...route, schedules: routeSchedules})}
+                        style={{
+                          opacity: routeSchedules.length === 0 ? 0.6 : 1,
+                          cursor: routeSchedules.length === 0 ? 'not-allowed' : 'pointer'
+                        }}
+                      >
+                        <div className="route-info">
+                          <h4>{route.routeName || route.name || 'Unnamed Route'}</h4>
+                          <div className="route-details">
+                            <span><i className="fas fa-map-marker-alt"></i> From: {route.source || route.startLocation || route.origin || 'N/A'}</span>
+                            <span><i className="fas fa-map-marker-alt"></i> To: {route.destination || route.endLocation || route.target || 'N/A'}</span>
+                            <span><i className="fas fa-road"></i> Distance: {route.distance || 'N/A'} km</span>
+                            <span><i className="fas fa-dollar-sign"></i> Price: ${route.price || route.fare || '25.00'}</span>
+                          </div>
+                          
+                          {/* Show available schedules */}
+                          {routeSchedules.length > 0 && (
+                            <div className="available-schedules">
+                              <strong>Available Times:</strong>
+                              {routeSchedules.map((schedule, scheduleIndex) => (
+                                <span key={schedule.id || scheduleIndex} className="schedule-time-chip">
+                                  {schedule.departureTime} - {schedule.arrivalTime}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          
+                          {routeSchedules.length === 0 && (
+                            <div className="no-schedules-warning">
+                              <i className="fas fa-exclamation-triangle"></i>
+                              <span>No schedules available</span>
+                            </div>
+                          )}
                         </div>
+                        {selectedRoute?.id === route.id && (
+                          <div className="selected-indicator">
+                            <i className="fas fa-check-circle"></i>
+                          </div>
+                        )}
                       </div>
-                      {selectedRoute?.id === route.id && (
-                        <div className="selected-indicator">
-                          <i className="fas fa-check-circle"></i>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
+              {/* Schedule Selection */}
+              {selectedRoute && selectedRoute.schedules && selectedRoute.schedules.length > 0 && (
+                <div className="section-card">
+                  <h3><i className="fas fa-calendar-alt"></i> Select Schedule</h3>
+                  <div className="schedules-selection-grid">
+                    {selectedRoute.schedules.map((schedule, index) => (
+                      <div 
+                        key={schedule.id || index}
+                        className={`schedule-selection-card ${ticket.scheduleId === schedule.id ? 'selected' : ''}`}
+                        onClick={() => setTicket(prev => ({
+                          ...prev,
+                          scheduleId: schedule.id,
+                          departureTime: schedule.departureTime,
+                          arrivalTime: schedule.arrivalTime,
+                          price: selectedRoute.price || selectedRoute.fare || 25.00
+                        }))}
+                      >
+                        <div className="schedule-info">
+                          <h4><i className="fas fa-clock"></i> {schedule.departureTime} - {schedule.arrivalTime}</h4>
+                          <p><i className="fas fa-repeat"></i> {schedule.frequency || 'Daily'}</p>
+                          {schedule.description && <p>{schedule.description}</p>}
+                        </div>
+                        {ticket.scheduleId === schedule.id && (
+                          <div className="selected-indicator">
+                            <i className="fas fa-check-circle"></i>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Booking Form */}
-              {selectedRoute && (
+              {selectedRoute && ticket.scheduleId && (
                 <div className="section-card">
                   <h3><i className="fas fa-ticket-alt"></i> Booking Details</h3>
                   <form onSubmit={handleBookTicket} className="booking-form">
@@ -433,26 +577,36 @@ function UserDashboard() {
                       </div>
                       <div className="form-group">
                         <label className="form-label">
-                          <i className="fas fa-chair"></i> Seat Number
+                          <i className="fas fa-calendar-alt"></i> Travel Date & Time
                         </label>
-                        <select
+                        <input
+                          type="datetime-local"
                           className="form-input"
-                          name="seatNumber"
-                          value={ticket.seatNumber}
+                          name="travelDateTime"
+                          value={ticket.travelDateTime}
                           onChange={handleChange}
                           required
-                        >
-                          <option value="">Select a seat</option>
-                          {availableSeats.map((seat) => (
-                            <option key={seat} value={seat}>
-                              Seat {seat}
-                            </option>
-                          ))}
-                        </select>
+                        />
                       </div>
                     </div>
 
                     <div className="form-row">
+                      <div className="form-group">
+                        <label className="form-label">
+                          <i className="fas fa-chair"></i> Seat Number
+                        </label>
+                        <input
+                          type="number"
+                          className="form-input"
+                          name="seatNumber"
+                          value={ticket.seatNumber}
+                          onChange={handleChange}
+                          placeholder="Enter seat number (1-50)"
+                          required
+                          min="1"
+                          max="50"
+                        />
+                      </div>
                       <div className="form-group">
                         <label className="form-label">
                           <i className="fas fa-dollar-sign"></i> Price
@@ -465,7 +619,35 @@ function UserDashboard() {
                           onChange={handleChange}
                           placeholder="Enter price"
                           required
+                          min="0"
+                          step="0.01"
                         />
+                      </div>
+                    </div>
+
+                    <div className="booking-summary">
+                      <h4><i className="fas fa-info-circle"></i> Booking Summary</h4>
+                      <div className="summary-details">
+                        <div className="summary-row">
+                          <span>Route:</span>
+                          <span>{selectedRoute.routeName || selectedRoute.name} ({selectedRoute.source || selectedRoute.origin || selectedRoute.startLocation} → {selectedRoute.destination || selectedRoute.target || selectedRoute.endLocation})</span>
+                        </div>
+                        <div className="summary-row">
+                          <span>Travel Date & Time:</span>
+                          <span>{ticket.travelDateTime ? new Date(ticket.travelDateTime).toLocaleString() : 'Not selected'}</span>
+                        </div>
+                        <div className="summary-row">
+                          <span>Passenger:</span>
+                          <span>{ticket.passengerName || 'Not specified'}</span>
+                        </div>
+                        <div className="summary-row">
+                          <span>Seat:</span>
+                          <span>{ticket.seatNumber || 'Not selected'}</span>
+                        </div>
+                        <div className="summary-row total">
+                          <span>Total Price:</span>
+                          <span>${ticket.price}</span>
+                        </div>
                       </div>
                     </div>
 
@@ -490,8 +672,11 @@ function UserDashboard() {
                             passengerName: "",
                             email: "",
                             phoneNumber: "",
-                            seatNumber: "",
-                            price: 0,
+                            routeName: "",
+                            travelDateTime: "",
+                            seatNumber: 0,
+                            price: 0.0,
+                            status: "BOOKED"
                           });
                         }}
                       >
@@ -502,11 +687,17 @@ function UserDashboard() {
                 </div>
               )}
 
-              {routes.length === 0 && (
+              {routes.length === 0 && !loading && (
                 <div className="no-data">
                   <i className="fas fa-route"></i>
                   <h3>No Routes Available</h3>
-                  <p>There are currently no routes available for booking.</p>
+                  <p>There are currently no routes available for booking. Please contact your administrator.</p>
+                  <button 
+                    className="btn btn-primary"
+                    onClick={() => fetchDashboardData()}
+                  >
+                    <i className="fas fa-sync-alt"></i> Refresh Routes
+                  </button>
                 </div>
               )}
             </div>
