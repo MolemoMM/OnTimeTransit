@@ -82,15 +82,7 @@ function AdminDashboard() {
       case "schedules":
         return <AssignExistingSchedule />;
       case "analytics":
-        return <Analytics data={{
-          labels: ["Total Tickets", "Total Routes", "Total Schedules", "Total Users"],
-          values: [
-            analyticsData.totalTickets || tickets.length || 0,
-            analyticsData.totalRoutes || routes.length || 0,
-            analyticsData.totalSchedules || schedules.length || 0,
-            analyticsData.totalUsers || users.length || 0,
-          ],
-        }} />;
+        return <Analytics data={tickets} />;
       case "users":
         return <ViewUsers />;
       default:

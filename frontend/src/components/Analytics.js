@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Bar, Pie, Line, Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, LineElement, PointElement } from "chart.js";
+import { 
+  Chart as ChartJS, 
+  CategoryScale, 
+  LinearScale, 
+  BarElement, 
+  ArcElement, 
+  Tooltip, 
+  Legend, 
+  LineElement, 
+  PointElement,
+  Filler
+} from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, LineElement, PointElement);
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, LineElement, PointElement, Filler);
 
 function Analytics({ data }) {
   const [selectedChart, setSelectedChart] = useState('overview');
@@ -12,8 +23,26 @@ function Analytics({ data }) {
     // Process and enhance the data for better analytics
     if (data && data.length > 0) {
       processAnalyticsData(data);
+    } else {
+      // Generate sample data for demonstration when no real data is available
+      generateSampleData();
     }
   }, [data]);
+
+  const generateSampleData = () => {
+    // Create sample data for demonstration
+    const sampleTickets = [
+      { id: 1, status: 'Confirmed', routeName: 'New York → Boston', travelDateTime: new Date('2024-11-15').toISOString() },
+      { id: 2, status: 'Confirmed', routeName: 'Boston → New York', travelDateTime: new Date('2024-12-10').toISOString() },
+      { id: 3, status: 'Pending', routeName: 'New York → Washington', travelDateTime: new Date('2024-12-20').toISOString() },
+      { id: 4, status: 'Canceled', routeName: 'Washington → New York', travelDateTime: new Date('2024-11-25').toISOString() },
+      { id: 5, status: 'Confirmed', routeName: 'New York → Boston', travelDateTime: new Date('2025-01-05').toISOString() },
+      { id: 6, status: 'Confirmed', routeName: 'Boston → Philadelphia', travelDateTime: new Date('2025-01-10').toISOString() },
+      { id: 7, status: 'Pending', routeName: 'Philadelphia → New York', travelDateTime: new Date('2024-10-15').toISOString() },
+      { id: 8, status: 'Confirmed', routeName: 'New York → Boston', travelDateTime: new Date('2024-09-20').toISOString() },
+    ];
+    processAnalyticsData(sampleTickets);
+  };
 
   const processAnalyticsData = (tickets) => {
     // Status distribution
@@ -116,6 +145,9 @@ function Analytics({ data }) {
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: {
+      intersect: false,
+    },
     plugins: {
       legend: {
         position: 'bottom',
@@ -151,6 +183,7 @@ function Analytics({ data }) {
         }
       },
       y: {
+        beginAtZero: true,
         grid: {
           color: 'rgba(0, 0, 0, 0.1)'
         },
@@ -167,6 +200,9 @@ function Analytics({ data }) {
   const pieOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: {
+      intersect: false,
+    },
     plugins: {
       legend: {
         position: 'bottom',
@@ -185,7 +221,16 @@ function Analytics({ data }) {
         bodyColor: '#fff',
         borderColor: 'rgba(102, 126, 234, 0.8)',
         borderWidth: 1,
-        cornerRadius: 8
+        cornerRadius: 8,
+        callbacks: {
+          label: function(context) {
+            const label = context.label || '';
+            const value = context.parsed || 0;
+            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+            return `${label}: ${value} (${percentage}%)`;
+          }
+        }
       }
     }
   };
@@ -197,6 +242,19 @@ function Analytics({ data }) {
           <h2 className="modern-card-title">
             <i className="fas fa-chart-bar" style={{ marginRight: '12px', color: '#667eea' }}></i>
             Analytics Dashboard
+            {(!data || data.length === 0) && (
+              <span style={{ 
+                fontSize: '12px', 
+                fontWeight: 'normal', 
+                color: '#f59e0b',
+                marginLeft: '8px',
+                padding: '4px 8px',
+                background: 'rgba(245, 158, 11, 0.1)',
+                borderRadius: '4px'
+              }}>
+                (Sample Data)
+              </span>
+            )}
           </h2>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button 
@@ -226,8 +284,8 @@ function Analytics({ data }) {
         {!analyticsData ? (
           <div style={{ textAlign: 'center', padding: '60px' }}>
             <i className="fas fa-chart-pie" style={{ fontSize: '48px', color: '#6b7280', opacity: 0.3, marginBottom: '16px' }}></i>
-            <p style={{ color: '#6b7280', fontSize: '16px' }}>No data available for analytics</p>
-            <p style={{ color: '#9ca3af', fontSize: '14px' }}>Analytics will appear here once ticket data is loaded</p>
+            <p style={{ color: '#6b7280', fontSize: '16px' }}>Loading analytics data...</p>
+            <p style={{ color: '#9ca3af', fontSize: '14px' }}>Please wait while we process the data</p>
           </div>
         ) : (
           <>
