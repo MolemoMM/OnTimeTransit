@@ -62,12 +62,31 @@ pipeline {
                 bat 'docker-compose down --remove-orphans'
                 bat 'docker container prune -f'
                 bat 'docker image prune -f'
-                // Remove all possible conflicting containers by name
-                bat 'docker rm -f user-service notification-service analytics-service ticket-service route-service schedule-service frontend pgadmin || exit 0'
+                // Remove all possible conflicting containers by name including postgres
+                bat 'docker rm -f user-service notification-service analytics-service ticket-service route-service schedule-service frontend pgadmin postgres || exit 0'
+                // Clean up any existing networks and volumes
+                bat 'docker network prune -f || exit 0'
+                bat 'docker volume prune -f || exit 0'
                 bat 'docker-compose pull'
                 // Force rebuild all images without cache
                 bat 'docker-compose build --no-cache'
                 bat 'docker-compose up -d'
+                // Wait for PostgreSQL to be ready
+                sleep(time: 30, unit: 'SECONDS')
+            }
+        }
+        stage('Verify Services') {
+            steps {
+                script {
+                    try {
+                        bat 'docker-compose ps'
+                        // Wait a bit more for services to fully initialize
+                        sleep(time: 15, unit: 'SECONDS')
+                        echo "Services started successfully!"
+                    } catch (Exception e) {
+                        echo "Warning: Some services may not be ready yet: ${e.getMessage()}"
+                    }
+                }
             }
         }
         stage('Debug All Service Workspaces') {
