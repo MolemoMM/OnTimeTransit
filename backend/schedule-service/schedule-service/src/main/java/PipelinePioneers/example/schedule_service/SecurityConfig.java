@@ -15,6 +15,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
             .authorizeHttpRequests()
+            .requestMatchers("/actuator/health").permitAll() // Allow health check endpoint
+            .requestMatchers("/actuator/health/**").permitAll() // Allow health check sub-endpoints
             .requestMatchers(HttpMethod.DELETE, "/api/schedules/**").permitAll() // Allow DELETE requests
             .requestMatchers(HttpMethod.GET, "/api/schedules").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/schedules/**").permitAll() // Allow GET requests

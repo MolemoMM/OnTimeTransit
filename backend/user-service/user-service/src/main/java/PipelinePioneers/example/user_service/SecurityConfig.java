@@ -16,6 +16,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.disable())
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/actuator/health").permitAll() // Explicitly allow health check
+                .requestMatchers("/actuator/health/**").permitAll() // Allow health check sub-endpoints
                 .anyRequest().permitAll()
             );
         return http.build();

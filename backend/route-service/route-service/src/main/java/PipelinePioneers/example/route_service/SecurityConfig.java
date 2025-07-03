@@ -15,6 +15,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
             .authorizeHttpRequests()
+            .requestMatchers("/actuator/health").permitAll() // Allow health check endpoint
+            .requestMatchers("/actuator/health/**").permitAll() // Allow health check sub-endpoints
             .requestMatchers(HttpMethod.DELETE, "/api/routes/**").permitAll() // Allow DELETE requests
             .requestMatchers(HttpMethod.GET, "/api/routes").permitAll() 
             .requestMatchers(HttpMethod.PUT, "/api/routes/**").hasRole("ADMIN")// Allow GET requests

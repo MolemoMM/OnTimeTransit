@@ -1,4 +1,4 @@
-// Updated API service with proper URL separation
+// Updated API service with proper URL separation and retry logic
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -7,39 +7,125 @@ const SCHEDULE_SERVICE_URL = "http://localhost:8085/api/schedules";
 const TICKET_SERVICE_URL = "http://localhost:8087/api/tickets";
 const AUTH_SERVICE_URL = "http://localhost:8089/api/auth";
 const USER_SERVICE_URL = "http://localhost:8089/api/users";
-const NOTIFICATION_SERVICE_URL = "http://localhost:8085/api/notifications";
+const NOTIFICATION_SERVICE_URL = "http://localhost:8083/api/notifications";
 const ANALYTICS_SERVICE_URL = "http://localhost:8086/api/analytics";
 
-const token = localStorage.getItem("token"); // Retrieve token from localStorage
+// Retry configuration
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
+
+// Sleep function for retry delays
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Retry wrapper function
+const withRetry = async (fn, retries = MAX_RETRIES) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      const isLastAttempt = i === retries - 1;
+      const shouldRetry = error.code === 'ECONNRESET' || 
+                          error.code === 'ECONNABORTED' || 
+                          error.code === 'ENOTFOUND' ||
+                          (error.response && error.response.status >= 500);
+      
+      if (shouldRetry && !isLastAttempt) {
+        console.log(`Attempt ${i + 1} failed, retrying in ${RETRY_DELAY}ms...`);
+        await sleep(RETRY_DELAY * (i + 1)); // Exponential backoff
+        continue;
+      }
+      throw error;
+    }
+  }
+};
+
+// Create axios instance with timeout
 const axiosInstance = axios.create({
+  timeout: 15000, // 15 second timeout
   headers: {
-    Authorization: `Bearer ${token}`, // Include the token in the header
+    'Content-Type': 'application/json',
   },
 });
+
+// Add request interceptor to include auth token
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for better error handling
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.code === 'ECONNABORTED') {
+      console.error('Request timeout');
+    } else if (error.code === 'ECONNRESET') {
+      console.error('Connection reset by server');
+    } else if (error.response?.status >= 500) {
+      console.error('Server error:', error.response.status);
+    } else if (error.response?.status === 404) {
+      console.error('Resource not found');
+    } else if (!error.response) {
+      console.error('Network error - no response received');
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Retry function for failed requests
+const retryRequest = async (fn, maxRetries = 3, delay = 1000) => {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (i === maxRetries - 1) throw error;
+      
+      console.log(`Attempt ${i + 1} failed, retrying in ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      delay *= 2; // Exponential backoff
+    }
+  }
+};
 
 const handleApiError = (error) => {
   if (error.response) {
     // Server responded with a status other than 2xx
-    toast.error(error.response.data.message || "An error occurred.");
+    const message = error.response.data?.message || `Server error: ${error.response.status}`;
+    console.error("API Error:", message);
   } else if (error.request) {
     // Request was made but no response received
-    toast.error("No response from the server. Please try again.");
+    console.error("No response from server:", error.message);
   } else {
     // Something else happened
-    toast.error("An unexpected error occurred.");
+    console.error("Request setup error:", error.message);
   }
-  console.error("API Error:", error);
   throw error; // Re-throw the error for further handling if needed
 };
 
 const ApiService = {
   getRoutes: async () => {
     try {
-      const response = await axios.get("http://localhost:8084/api/routes");
-      return response.data;
+      console.log("Fetching routes from:", ROUTE_SERVICE_URL);
+      return await withRetry(async () => {
+        const response = await axiosInstance.get(ROUTE_SERVICE_URL);
+        console.log("Routes response:", response.data);
+        return response.data || [];
+      });
     } catch (error) {
       console.error("Failed to fetch routes:", error);
-      throw new Error("Failed to fetch routes.");
+      if (error.response) {
+        console.error("Response status:", error.response.status);
+        console.error("Response data:", error.response.data);
+      }
+      return []; // Return empty array as fallback
     }
   },
   getRouteById: (id) => axiosInstance.get(`${ROUTE_SERVICE_URL}/${id}`).then((response) => response.data).catch(handleApiError),
@@ -80,7 +166,21 @@ const ApiService = {
     },
 
   // Schedules
-  getSchedules: () => axiosInstance.get(`${SCHEDULE_SERVICE_URL}`).then((res) => res.data).catch(handleApiError),
+  getSchedules: async () => {
+    try {
+      console.log("Fetching schedules from:", SCHEDULE_SERVICE_URL);
+      const response = await withRetry(() => axiosInstance.get(SCHEDULE_SERVICE_URL));
+      console.log("Schedules response:", response.data);
+      return response.data || [];
+    } catch (error) {
+      console.error("Failed to fetch schedules:", error);
+      if (error.response) {
+        console.error("Response status:", error.response.status);
+        console.error("Response data:", error.response.data);
+      }
+      return [];
+    }
+  },
   addSchedule: (schedule) => axiosInstance.post(`${SCHEDULE_SERVICE_URL}`, schedule).then((res) => res.data).catch(handleApiError),
   deleteSchedule: (id) => axiosInstance.delete(`${SCHEDULE_SERVICE_URL}/${id}`).then((res) => res.data).catch(handleApiError),
   getSchedulesByRoute: (routeId) =>
@@ -104,10 +204,16 @@ const ApiService = {
       .catch(handleApiError),
   getAllTickets: async () => {
     try {
-      const response = await axios.get(`${TICKET_SERVICE_URL}`);
-      return response.data;
+      console.log("Fetching tickets from:", `${TICKET_SERVICE_URL}`);
+      const response = await withRetry(() => axiosInstance.get(`${TICKET_SERVICE_URL}`));
+      console.log("Tickets response:", response.data);
+      return response.data || [];
     } catch (error) {
       console.error("Failed to fetch tickets:", error);
+      if (error.response) {
+        console.error("Response status:", error.response.status);
+        console.error("Response data:", error.response.data);
+      }
       return [];
     }
   },
@@ -141,11 +247,21 @@ const ApiService = {
   // Authentication
   login: (credentials) => axiosInstance.post(`${AUTH_SERVICE_URL}/login`, credentials).then((res) => res.data).catch(handleApiError),
   register: (user) => axiosInstance.post(`${AUTH_SERVICE_URL}/register`, user).then((res) => res.data).catch(handleApiError),
-  getAllUsers: () =>
-  axiosInstance
-    .get(`${USER_SERVICE_URL}`)
-    .then((res) => res.data)
-    .catch(handleApiError),
+  getAllUsers: async () => {
+    try {
+      console.log("Fetching users from:", `${USER_SERVICE_URL}`);
+      const response = await withRetry(() => axiosInstance.get(`${USER_SERVICE_URL}`));
+      console.log("Users response:", response.data);
+      return response.data || [];
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+      if (error.response) {
+        console.error("Response status:", error.response.status);
+        console.error("Response data:", error.response.data);
+      }
+      return [];
+    }
+  },
   deleteUser: (id) =>
   axiosInstance
     .delete(`${USER_SERVICE_URL}/${id}`)

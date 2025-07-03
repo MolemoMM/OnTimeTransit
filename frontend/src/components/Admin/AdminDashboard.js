@@ -17,32 +17,83 @@ function AdminDashboard() {
   const [analyticsData, setAnalyticsData] = useState({});
   const [notificationMessage, setNotificationMessage] = useState("");
   const [activeView, setActiveView] = useState("dashboard"); // New state for active view
+  const [loading, setLoading] = useState(false); // Add loading state
+  const [serviceStatus, setServiceStatus] = useState({
+    routes: 'unknown',
+    tickets: 'unknown', 
+    schedules: 'unknown',
+    users: 'unknown'
+  }); // Track service health
 
   const navigate = useNavigate();
   const adminName = localStorage.getItem("adminName") || "Admin";
 
   // Fetch data for dashboard
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [routesData, ticketsData, schedulesData, usersData, analytics] = await Promise.all([
-          ApiService.getRoutes().catch(() => []),
-          ApiService.getTickets().catch(() => []),
-          ApiService.getSchedules().catch(() => []),
-          ApiService.getAllUsers().catch(() => []),
-          ApiService.getAnalyticsSummary().catch(() => ({}))
-        ]);
-        
-        setRoutes(routesData);
-        setTickets(ticketsData);
-        setSchedules(schedulesData);
-        setUsers(usersData);
-        setAnalyticsData(analytics);
-      } catch (error) {
-        toast.error("Failed to load dashboard data");
-      }
-    };
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      console.log("Fetching admin dashboard data...");
+      
+      // Fetch all data with individual error handling
+      const [routesData, ticketsData, schedulesData, usersData, analytics] = await Promise.allSettled([
+        ApiService.getRoutes(),
+        ApiService.getAllTickets(),
+        ApiService.getSchedules(),
+        ApiService.getAllUsers(),
+        ApiService.getAnalyticsSummary()
+      ]);
+      
+      // Process results
+      const routes = routesData.status === 'fulfilled' ? routesData.value : [];
+      const tickets = ticketsData.status === 'fulfilled' ? ticketsData.value : [];
+      const schedules = schedulesData.status === 'fulfilled' ? schedulesData.value : [];
+      const users = usersData.status === 'fulfilled' ? usersData.value : [];
+      const analyticsResult = analytics.status === 'fulfilled' ? analytics.value : {};
+      
+      // Update service status
+      setServiceStatus({
+        routes: routesData.status === 'fulfilled' ? 'online' : 'offline',
+        tickets: ticketsData.status === 'fulfilled' ? 'online' : 'offline',
+        schedules: schedulesData.status === 'fulfilled' ? 'online' : 'offline',
+        users: usersData.status === 'fulfilled' ? 'online' : 'offline'
+      });
+      
+      console.log("Fetched data:", {
+        routes: routes.length,
+        tickets: tickets.length,
+        schedules: schedules.length,
+        users: users.length
+      });
 
+      // Log any failed requests
+      if (routesData.status === 'rejected') console.error("Routes fetch failed:", routesData.reason);
+      if (ticketsData.status === 'rejected') console.error("Tickets fetch failed:", ticketsData.reason);
+      if (schedulesData.status === 'rejected') console.error("Schedules fetch failed:", schedulesData.reason);
+      if (usersData.status === 'rejected') console.error("Users fetch failed:", usersData.reason);
+      if (analytics.status === 'rejected') console.error("Analytics fetch failed:", analytics.reason);
+      
+      setRoutes(routes);
+      setTickets(tickets);
+      setSchedules(schedules);
+      setUsers(users);
+      setAnalyticsData(analyticsResult);
+      
+      // Show partial success message if some data was loaded
+      const successCount = [routesData, ticketsData, schedulesData, usersData].filter(r => r.status === 'fulfilled').length;
+      if (successCount > 0 && successCount < 4) {
+        toast.warning(`Loaded ${successCount}/4 data sources. Some services may be unavailable.`);
+      } else if (successCount === 0) {
+        toast.error("Failed to load dashboard data. All services appear to be down.");
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      toast.error("Failed to load dashboard data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -106,7 +157,23 @@ function AdminDashboard() {
                 overflow: 'hidden'
               }}>
                 <div style={{ position: 'relative', zIndex: 2 }}>
-                  <i className="fas fa-users" style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.9 }}></i>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <i className="fas fa-users" style={{ fontSize: '48px', opacity: 0.9 }}></i>
+                    <div style={{ 
+                      padding: '4px 8px', 
+                      background: serviceStatus.users === 'online' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)', 
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      fontWeight: '500'
+                    }}>
+                      <i className={`fas fa-circle`} style={{ 
+                        color: serviceStatus.users === 'online' ? '#10b981' : '#ef4444', 
+                        fontSize: '8px', 
+                        marginRight: '4px' 
+                      }}></i>
+                      {serviceStatus.users === 'online' ? 'Online' : 'Offline'}
+                    </div>
+                  </div>
                   <div style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '8px' }}>{users.length || 0}</div>
                   <div style={{ fontSize: '16px', opacity: 0.9, fontWeight: '500' }}>Total Users</div>
                   <div style={{ fontSize: '14px', opacity: 0.7, marginTop: '8px' }}>
@@ -135,7 +202,23 @@ function AdminDashboard() {
                 overflow: 'hidden'
               }}>
                 <div style={{ position: 'relative', zIndex: 2 }}>
-                  <i className="fas fa-route" style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.9 }}></i>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <i className="fas fa-route" style={{ fontSize: '48px', opacity: 0.9 }}></i>
+                    <div style={{ 
+                      padding: '4px 8px', 
+                      background: serviceStatus.routes === 'online' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)', 
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      fontWeight: '500'
+                    }}>
+                      <i className={`fas fa-circle`} style={{ 
+                        color: serviceStatus.routes === 'online' ? '#10b981' : '#ef4444', 
+                        fontSize: '8px', 
+                        marginRight: '4px' 
+                      }}></i>
+                      {serviceStatus.routes === 'online' ? 'Online' : 'Offline'}
+                    </div>
+                  </div>
                   <div style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '8px' }}>{routes.length || 0}</div>
                   <div style={{ fontSize: '16px', opacity: 0.9, fontWeight: '500' }}>Active Routes</div>
                   <div style={{ fontSize: '14px', opacity: 0.7, marginTop: '8px' }}>
@@ -164,11 +247,27 @@ function AdminDashboard() {
                 overflow: 'hidden'
               }}>
                 <div style={{ position: 'relative', zIndex: 2 }}>
-                  <i className="fas fa-ticket-alt" style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.9 }}></i>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <i className="fas fa-ticket-alt" style={{ fontSize: '48px', opacity: 0.9 }}></i>
+                    <div style={{ 
+                      padding: '4px 8px', 
+                      background: serviceStatus.tickets === 'online' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)', 
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      fontWeight: '500'
+                    }}>
+                      <i className={`fas fa-circle`} style={{ 
+                        color: serviceStatus.tickets === 'online' ? '#10b981' : '#ef4444', 
+                        fontSize: '8px', 
+                        marginRight: '4px' 
+                      }}></i>
+                      {serviceStatus.tickets === 'online' ? 'Online' : 'Offline'}
+                    </div>
+                  </div>
                   <div style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '8px' }}>{tickets.length || 0}</div>
                   <div style={{ fontSize: '16px', opacity: 0.9, fontWeight: '500' }}>Total Tickets</div>
                   <div style={{ fontSize: '14px', opacity: 0.7, marginTop: '8px' }}>
-                    {tickets.filter(t => t.status?.toLowerCase() === 'confirmed').length} Confirmed • {tickets.filter(t => t.status?.toLowerCase() === 'pending').length} Pending
+                    {tickets.filter(t => t.status?.toUpperCase() === 'BOOKED').length} Booked • {tickets.filter(t => t.status?.toUpperCase() === 'CANCELLED').length} Cancelled
                   </div>
                 </div>
                 <div style={{ 
@@ -193,7 +292,23 @@ function AdminDashboard() {
                 overflow: 'hidden'
               }}>
                 <div style={{ position: 'relative', zIndex: 2 }}>
-                  <i className="fas fa-calendar-alt" style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.9 }}></i>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <i className="fas fa-calendar-alt" style={{ fontSize: '48px', opacity: 0.9 }}></i>
+                    <div style={{ 
+                      padding: '4px 8px', 
+                      background: serviceStatus.schedules === 'online' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)', 
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      fontWeight: '500'
+                    }}>
+                      <i className={`fas fa-circle`} style={{ 
+                        color: serviceStatus.schedules === 'online' ? '#10b981' : '#ef4444', 
+                        fontSize: '8px', 
+                        marginRight: '4px' 
+                      }}></i>
+                      {serviceStatus.schedules === 'online' ? 'Online' : 'Offline'}
+                    </div>
+                  </div>
                   <div style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '8px' }}>{schedules.length || 0}</div>
                   <div style={{ fontSize: '16px', opacity: 0.9, fontWeight: '500' }}>Bus Schedules</div>
                   <div style={{ fontSize: '14px', opacity: 0.7, marginTop: '8px' }}>
@@ -614,9 +729,28 @@ function AdminDashboard() {
             <h1 className="dashboard-title">Admin Dashboard</h1>
             <p className="dashboard-subtitle">Welcome back, {adminName}! Manage your transit system efficiently.</p>
           </div>
-          <button className="logout-button" onClick={handleLogout}>
-            <i className="fas fa-sign-out-alt"></i> Logout
-          </button>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <button 
+              className="refresh-button" 
+              onClick={fetchData}
+              disabled={loading}
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: 'none',
+                borderRadius: '10px',
+                padding: '10px 15px',
+                color: 'white',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i> 
+              {loading ? ' Refreshing...' : ' Refresh Data'}
+            </button>
+            <button className="logout-button" onClick={handleLogout}>
+              <i className="fas fa-sign-out-alt"></i> Logout
+            </button>
+          </div>
         </div>
 
         {/* Navigation Pills */}
@@ -661,7 +795,36 @@ function AdminDashboard() {
 
         {/* Content Area */}
         <div className="content-area">
-          {renderContent()}
+          {loading ? (
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              minHeight: '400px',
+              flexDirection: 'column',
+              gap: '20px'
+            }}>
+              <div style={{
+                width: '50px',
+                height: '50px',
+                border: '4px solid #f3f3f3',
+                borderTop: '4px solid #667eea',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }}></div>
+              <div style={{
+                fontSize: '16px',
+                color: '#6b7280',
+                textAlign: 'center'
+              }}>
+                Loading dashboard data...
+                <br />
+                <small>This may take a few moments if services are starting up</small>
+              </div>
+            </div>
+          ) : (
+            renderContent()
+          )}
         </div>
       </div>
     </div>
