@@ -43,9 +43,9 @@ Thumbs.db
 .mvnw
 .mvnw.cmd
 
-# Environment variables
-*.env
-.env*
+# Environment variables (keep .env for production, ignore others)
+#*.env
+.env.*
 .env.local
 .env.development
 .env.production

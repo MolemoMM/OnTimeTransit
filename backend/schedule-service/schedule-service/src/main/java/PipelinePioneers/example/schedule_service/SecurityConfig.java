@@ -18,11 +18,12 @@ public class SecurityConfig {
             .requestMatchers("/actuator/health").permitAll() // Allow health check endpoint
             .requestMatchers("/actuator/health/**").permitAll() // Allow health check sub-endpoints
             .requestMatchers(HttpMethod.DELETE, "/api/schedules/**").permitAll() // Allow DELETE requests
-            .requestMatchers(HttpMethod.GET, "/api/schedules").permitAll()
-            .requestMatchers(HttpMethod.GET, "/api/schedules/**").permitAll() // Allow GET requests
-            .requestMatchers(HttpMethod.POST, "/api/schedules").permitAll()
-            .requestMatchers(HttpMethod.GET, "/api/schedules/route/**").permitAll() // Allow POST requests temporarily
-            .anyRequest().authenticated();
+            .requestMatchers(HttpMethod.GET, "/api/schedules").permitAll() // Allow GET all schedules
+            .requestMatchers(HttpMethod.GET, "/api/schedules/**").permitAll() // Allow GET single schedule
+            .requestMatchers(HttpMethod.POST, "/api/schedules").permitAll() // Allow POST requests
+            .requestMatchers(HttpMethod.PUT, "/api/schedules/**").permitAll() // Allow PUT requests
+            .requestMatchers(HttpMethod.GET, "/api/schedules/route/**").permitAll() // Allow getting schedules by route
+            .anyRequest().permitAll(); // Allow all requests for development
         return http.build();
     }
 }
