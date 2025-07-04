@@ -1,0 +1,93 @@
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Environment files
+.env
+.env.*
+*.env
+
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+target/
+build/
+dist/
+*.jar
+*.war
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Test files
+test-data.js
+verify-data.js
+debug-services.js
+**/test/
+**/*test*
+**/*spec*
+
+# Development files
+docker-compose.override.yml
+docker-compose.dev.yml
+docker-compose.local.yml
+Dockerfile.dev
+.dockerignore
+
+# Secrets
+secrets/
+certificates/
+*.key
+*.pem
+*.crt
+*.p12
+*.jks
+*.keystore
+*.truststore
+api-keys.json
+config/keys.js
+auth.json
+credentials.json
+
+# Database files
+*.sql.backup
+*.dump
+*.bak
+database_backups/
+
+# Health check files
+health-check.ps1
+health-check.sh
+health-check-*.log
+health-check-results.json
+
+# Jenkins and CI/CD
+Jenkinsfile
+.jenkins/
+pipeline/
+.gitlab-ci.yml
+.github/

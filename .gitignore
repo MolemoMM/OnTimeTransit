@@ -43,8 +43,13 @@ Thumbs.db
 .mvnw
 .mvnw.cmd
 
-# Other
+# Environment variables
 *.env
+.env*
+.env.local
+.env.development
+.env.production
+.env.test
 
 # Application-specific
 backend/**/resources/*.properties
@@ -53,7 +58,51 @@ backend/**/resources/*.yaml
 frontend/src/assets/
 frontend/src/config/
 
-# Exclude sensitive files
-#backend/**/src/main/resources/application.properties
+# Test and development files
+test-data.js
+verify-data.js
+debug-services.js
+
+# Secrets and credentials
+secrets/
+certificates/
+*.key
+*.pem
+*.crt
+api-keys.json
+config/keys.js
+*.p12
+*.jks
+*.keystore
+*.truststore
+
+# Database dumps and backups
+*.sql.backup
+*.dump
+*.bak
+database_backups/
+
+# Temporary and backup files
+*.tmp
+*.temp
+*.backup
+*.old
+*~
+.#*
+
+# Security files
+.htpasswd
+.htaccess
+auth.json
+credentials.json
+
+# Docker sensitive files
+docker-compose.override.yml
+docker-compose.prod.yml
+docker-compose.staging.yml
+
+# Health check outputs
+health-check-*.log
+health-check-results.json
 
 

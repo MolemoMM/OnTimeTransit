@@ -1,0 +1,81 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.properties
+
+# IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+hs_err_pid*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment and configuration files
+.env
+.env.*
+application-local.properties
+application-dev.properties
+application-prod.properties
+application-test.properties
+
+# Security files
+*.key
+*.pem
+*.crt
+*.p12
+*.jks
+*.keystore
+*.truststore
+secrets/
+certificates/
+
+# Database files
+*.sql.backup
+*.dump
+*.bak
+
+# Test files
+src/test/
+**/test/
+**/*test*
+**/*Test*
+
+# Documentation
+README.md
+*.md
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp

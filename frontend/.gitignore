@@ -1,23 +1,107 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
+# Dependencies
+node_modules/
 /.pnp
 .pnp.js
 
-# testing
+# Testing
 /coverage
 
-# production
+# Production
 /build
 
-# misc
-.DS_Store
+# Environment variables
+.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.development
+.env.production
 
+# API Keys and Secrets
+.env.api
+api-keys.json
+config/keys.js
+src/config/keys.js
+src/config/api-keys.js
+src/config/secrets.js
+src/config/credentials.js
+
+# Authentication tokens
+auth-tokens.json
+jwt-secrets.js
+oauth-config.js
+
+# Third-party service configs
+firebase-config.js
+aws-config.js
+google-config.js
+
+# Security certificates
+*.key
+*.pem
+*.crt
+*.p12
+certificates/
+
+# Database connection files
+db-config.js
+database-urls.js
+
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Build artifacts
+build/
+dist/
+
+# Service worker
+sw.js
+workbox-*.js
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Storybook
+storybook-static/
+
+# Local development files
+*.local
+local-*
+
+# Backup files
+*.backup
+*.bak
+*.old
