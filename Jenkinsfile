@@ -39,6 +39,11 @@ pipeline {
                 }
             }
         }
+        stage('Copy Environment File') {
+            steps {
+                bat 'copy /C:\\Users\\mamas\\OneDrive\\Documents\\wipro\\OnTimeTransit\\.env .'
+            }
+        }
         stage('Build Java Services') {
             steps {
                 bat 'cd backend\\user-service\\user-service && mvnw clean package -DskipTests'
