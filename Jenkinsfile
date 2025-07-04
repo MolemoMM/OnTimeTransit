@@ -39,14 +39,6 @@ pipeline {
                 }
             }
         }
-        stage('Copy .env to Workspace') {
-            steps {
-                // Copy .env from your project root to the Jenkins workspace
-                bat 'copy C:\\Users\\mamas\\OneDrive\\Documents\\wipro\\OnTimeTransit\\.env .env'
-                bat 'dir'
-                bat 'type .env'
-            }
-        }
         stage('Build Java Services') {
             steps {
                 bat 'cd backend\\user-service\\user-service && mvnw clean package -DskipTests'

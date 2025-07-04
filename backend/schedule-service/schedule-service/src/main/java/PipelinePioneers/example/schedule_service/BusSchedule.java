@@ -7,6 +7,7 @@ import java.time.LocalTime;
 
 @Data
 @Entity
+@Table(name = "schedule") // Use original table name
 public class BusSchedule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

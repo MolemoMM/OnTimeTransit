@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "routes") // Use standard table naming
+@Table(name = "route") // Revert to original table name
 public class Route {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
