@@ -41,7 +41,9 @@ pipeline {
         }
         stage('Copy Environment File') {
             steps {
-                bat 'copy /C:\\Users\\mamas\\OneDrive\\Documents\\wipro\\OnTimeTransit\\.env .'
+                bat 'copy "C:\\Users\\mamas\\OneDrive\\Documents\\wipro\\OnTimeTransit\\.env" .'
+                bat 'dir .env'
+                bat 'type .env'
             }
         }
         stage('Build Java Services') {
