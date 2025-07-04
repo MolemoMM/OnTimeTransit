@@ -1,27 +1,37 @@
 # frontend/Dockerfile
 
-# Step 1: Use official Node.js image with Alpine for smaller size
-FROM node:22-alpine
+# Stage 1: Build the React app
+FROM node:18-alpine AS builder
 
-# Step 2: Set working directory
+# Set working directory
 WORKDIR /app
 
-# Step 3: Install only production dependencies first for better caching
+# Copy package files
 COPY package*.json ./
-RUN npm ci --silent --only=production=false && npm cache clean --force
 
-# Step 4: Copy the rest of the code
+# Install dependencies
+RUN npm install
+
+# Copy source code
 COPY . .
 
-# Step 5: Set environment variables for optimization
-ENV NODE_ENV=development
-ENV CHOKIDAR_USEPOLLING=true
-ENV CHOKIDAR_INTERVAL=2000
-ENV GENERATE_SOURCEMAP=false
-ENV FAST_REFRESH=false
+# Build the application
+RUN npm run build
 
-# Step 6: Expose the port React runs on
-EXPOSE 3000
+# Stage 2: Serve the app with Nginx
+FROM nginx:alpine
 
-# Step 7: Start the app with optimized settings
-CMD ["npm", "start"]
+# Remove default nginx static assets
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy built assets from builder stage
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port 80
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

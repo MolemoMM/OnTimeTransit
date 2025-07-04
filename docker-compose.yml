@@ -282,18 +282,7 @@ services:
       context: ./frontend
     container_name: frontend
     ports:
-      - "3000:3000"
-    environment:
-      # Optimize file watching to reduce CPU usage
-      - CHOKIDAR_USEPOLLING=true
-      - CHOKIDAR_INTERVAL=2000
-      - WATCHPACK_POLLING=true
-      - WATCHPACK_POLL_INTERVAL=2000
-      - FAST_REFRESH=false
-      - GENERATE_SOURCEMAP=false
-      # Reduce bundle size and compilation time
-      - REACT_APP_NODE_ENV=development
-      - NODE_OPTIONS=--max-old-space-size=1024
+      - "3000:80"
     stdin_open: true
     tty: true
     depends_on:
