@@ -2,10 +2,8 @@ package PipelinePioneers.example.user_service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 public class AuthService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -16,37 +14,19 @@ public class AuthService {
     }
 
     public void register(User user) {
-        System.out.println("Registering user: " + user.getUsername());
+        System.out.println("Registering user: " + user);
 
-        // Validate required fields
-        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
-            throw new RuntimeException("Username is required");
-        }
-        if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
-            throw new RuntimeException("Password is required");
-        }
-        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
             throw new RuntimeException("Email is required");
         }
 
-        // Check if username already exists
-        if (userRepository.findByUsername(user.getUsername().trim()).isPresent()) {
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             System.out.println("Username already exists: " + user.getUsername());
             throw new RuntimeException("Username already exists");
         }
 
-        // Check if email already exists
-        if (userRepository.findByEmail(user.getEmail().trim()).isPresent()) {
-            System.out.println("Email already exists: " + user.getEmail());
-            throw new RuntimeException("Email already exists");
-        }
-
-        // Set trimmed values and encode password
-        user.setUsername(user.getUsername().trim());
-        user.setEmail(user.getEmail().trim());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        
-        System.out.println("Saving user to the database: " + user.getUsername());
+        System.out.println("Saving user to the database: " + user);
         userRepository.save(user);
 
         System.out.println("User registered successfully: " + user.getUsername());
@@ -55,36 +35,22 @@ public class AuthService {
     public String login(User user) {
         System.out.println("Attempting login for username: " + user.getUsername());
 
-        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
-            throw new RuntimeException("Username is required");
-        }
-        if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
-            throw new RuntimeException("Password is required");
-        }
-
-        String username = user.getUsername().trim();
-        String password = user.getPassword();
-
-        // Check for admin credentials first (hardcoded for now)
-        if ("admin".equals(username) && "admin123".equals(password)) {
+        // Check for admin credentials
+        if ("admin".equals(user.getUsername()) && "admin123".equals(user.getPassword())) {
             System.out.println("Admin login successful");
             return "ADMIN";
         }
 
-        // Check for regular user credentials in database
-        User existingUser = userRepository.findByUsername(username).orElse(null);
+        // Check for regular user credentials
+        User existingUser = userRepository.findByUsername(user.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (existingUser == null) {
-            System.out.println("User not found: " + username);
-            throw new RuntimeException("Invalid username or password");
+        if (!passwordEncoder.matches(user.getPassword(), existingUser.getPassword())) {
+            System.out.println("Invalid password for username: " + user.getUsername());
+            throw new RuntimeException("Invalid credentials");
         }
 
-        if (!passwordEncoder.matches(password, existingUser.getPassword())) {
-            System.out.println("Invalid password for username: " + username);
-            throw new RuntimeException("Invalid username or password");
-        }
-
-        System.out.println("User login successful: " + username);
+        System.out.println("User login successful: " + user.getUsername());
         return "USER";
     }
 

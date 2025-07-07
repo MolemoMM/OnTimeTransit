@@ -2,12 +2,13 @@ package PipelinePioneers.example.user_service;
 
 import jakarta.persistence.*;
 
-@Entity
-@Table(name = "user") // Revert to original table name
+@Entity@Table(name = "\"user\"") // Ensure this matches the table name in the database
+
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "\"id\"")
     private Long id;
 
     @Column(nullable = false, unique = true)

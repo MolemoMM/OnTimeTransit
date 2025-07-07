@@ -18,11 +18,10 @@ public class SecurityConfig {
             .requestMatchers("/actuator/health").permitAll() // Allow health check endpoint
             .requestMatchers("/actuator/health/**").permitAll() // Allow health check sub-endpoints
             .requestMatchers(HttpMethod.DELETE, "/api/routes/**").permitAll() // Allow DELETE requests
-            .requestMatchers(HttpMethod.GET, "/api/routes").permitAll() // Allow GET requests
-            .requestMatchers(HttpMethod.GET, "/api/routes/**").permitAll() // Allow GET single route
-            .requestMatchers(HttpMethod.PUT, "/api/routes/**").permitAll() // Allow PUT requests for development
-            .requestMatchers(HttpMethod.POST, "/api/routes").permitAll() // Allow POST requests
-            .anyRequest().permitAll(); // Allow all requests for development
+            .requestMatchers(HttpMethod.GET, "/api/routes").permitAll() 
+            .requestMatchers(HttpMethod.PUT, "/api/routes/**").hasRole("ADMIN")// Allow GET requests
+            .requestMatchers(HttpMethod.POST, "/api/routes").permitAll() // Allow POST requests temporarily
+            .anyRequest().authenticated();
         return http.build();
     }
 }
