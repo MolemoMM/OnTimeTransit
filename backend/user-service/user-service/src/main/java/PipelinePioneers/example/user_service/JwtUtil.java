@@ -2,6 +2,7 @@ package PipelinePioneers.example.user_service;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -9,9 +10,16 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long expirationTime = 1000 * 60 * 60 * 10; // 10 hours
+    
+    @Value("${JWT_SECRET:OnTimeTransit-Super-Secret-Key-2024-Change-Me-In-Production}")
+    private String jwtSecret;
+    
+    @Value("${JWT_EXPIRATION:86400000}")
+    private long expirationTime;
+    
+    private Key getSigningKey() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    }
 
     public String generateToken(String username, String role) {
         return Jwts.builder()
@@ -19,13 +27,13 @@ public class JwtUtil {
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(key)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public Claims extractClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();

@@ -26,6 +26,12 @@ public class AuthService {
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        
+        // Set default role if not provided
+        if (user.getRole() == null || user.getRole().isEmpty()) {
+            user.setRole("USER");
+        }
+        
         System.out.println("Saving user to the database: " + user);
         userRepository.save(user);
 
@@ -35,7 +41,7 @@ public class AuthService {
     public String login(User user) {
         System.out.println("Attempting login for username: " + user.getUsername());
 
-        // Check for admin credentials
+        // Check for admin credentials first
         if ("admin".equals(user.getUsername()) && "admin123".equals(user.getPassword())) {
             System.out.println("Admin login successful");
             return "ADMIN";
@@ -51,7 +57,7 @@ public class AuthService {
         }
 
         System.out.println("User login successful: " + user.getUsername());
-        return "USER";
+        return existingUser.getRole(); // Return the user's actual role
     }
 
     public java.util.List<User> getAllUsers() {

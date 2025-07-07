@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const USER_SERVICE_URL = "http://localhost:8089/api/auth";
+// Use environment variable or default to localhost
+const USER_SERVICE_URL = process.env.REACT_APP_USER_SERVICE_URL || "http://localhost:8089/api/auth";
 
 const AuthService = {
   login: (credentials) => {

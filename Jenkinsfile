@@ -39,6 +39,7 @@ pipeline {
                 }
             }
         }
+
         stage('Copy Environment File') {
             steps {
                 bat 'copy "C:\\Users\\mamas\\OneDrive\\Documents\\wipro\\OnTimeTransit\\.env" .'
@@ -46,6 +47,39 @@ pipeline {
                 bat 'type .env'
             }
         }
+
+        stage('Cleanup Previous Deployment') {
+            steps {
+                script {
+                    // Stop containers by name first (most reliable)
+                    bat '''
+                        docker stop user-service notification-service analytics-service ticket-service route-service schedule-service frontend pgadmin postgres-db 2>nul || echo "Some containers were not running"
+                        docker rm -f user-service notification-service analytics-service ticket-service route-service schedule-service frontend pgadmin postgres-db 2>nul || echo "Some containers were not found"
+                    '''
+                    
+                    // Stop using project name
+                    bat 'docker-compose -p ontimetransit down --remove-orphans --volumes || echo "Docker compose down failed, continuing..."'
+                    
+                    // Clean up any remaining containers with project prefix
+                    bat '''
+                        for /f "tokens=*" %%i in ('docker ps -aq --filter "name=ontimetransit"') do docker stop %%i 2>nul || echo "Container already stopped"
+                        for /f "tokens=*" %%i in ('docker ps -aq --filter "name=ontimetransit"') do docker rm -f %%i 2>nul || echo "Container already removed"
+                    '''
+                    
+                    // Remove images with project prefix
+                    bat '''
+                        for /f "tokens=*" %%i in ('docker images -q --filter "reference=ontimetransit*"') do docker rmi -f %%i 2>nul || echo "Image already removed"
+                    '''
+                    
+                    // System cleanup
+                    bat 'docker container prune -f || echo "Container prune failed"'
+                    bat 'docker image prune -f || echo "Image prune failed"'
+                    bat 'docker network prune -f || echo "Network prune failed"'
+                    bat 'docker volume prune -f || echo "Volume prune failed"'
+                }
+            }
+        }
+
         stage('Build Java Services') {
             steps {
                 bat 'cd backend\\user-service\\user-service && mvnw clean package -DskipTests'
@@ -56,19 +90,42 @@ pipeline {
                 bat 'cd backend\\schedule-service\\schedule-service && mvnw clean package -DskipTests'
             }
         }
+
         stage('Deploy Services') {
             steps {
-                bat 'docker-compose down --remove-orphans'
-                bat 'docker container prune -f'
-                bat 'docker image prune -f'
-                // Remove all possible conflicting containers by name
-                bat 'docker rm -f user-service notification-service analytics-service ticket-service route-service schedule-service frontend pgadmin || exit 0'
-                bat 'docker-compose pull'
-                // Force rebuild all images without cache
-                bat 'docker-compose build --no-cache'
-                bat 'docker-compose up -d'
+                script {
+                    // Build and deploy with consistent project name
+                    bat 'docker-compose -p ontimetransit build --no-cache --parallel'
+                    bat 'docker-compose -p ontimetransit up -d'
+                    
+                    // Wait for services to start
+                    bat 'timeout /t 30 /nobreak'
+                    
+                    // Verify deployment
+                    bat 'docker-compose -p ontimetransit ps'
+                }
             }
         }
+
+        stage('Health Check') {
+            steps {
+                script {
+                    // Wait for services to be ready
+                    bat 'timeout /t 60 /nobreak'
+                    
+                    // Check if services are responding
+                    bat '''
+                        curl -f http://localhost:8089/actuator/health || echo "User service not ready"
+                        curl -f http://localhost:8084/actuator/health || echo "Route service not ready"
+                        curl -f http://localhost:8085/actuator/health || echo "Schedule service not ready"
+                        curl -f http://localhost:8087/actuator/health || echo "Ticket service not ready"
+                        curl -f http://localhost:8083/actuator/health || echo "Notification service not ready"
+                        curl -f http://localhost:8086/actuator/health || echo "Analytics service not ready"
+                    '''
+                }
+            }
+        }
+
         stage('Debug All Service Workspaces') {
             steps {
                 bat 'dir backend\\user-service\\user-service'
@@ -79,9 +136,12 @@ pipeline {
                 bat 'dir backend\\schedule-service\\schedule-service'
             }
         }
+
         stage('Docker Info') {
             steps {
                 bat 'docker info'
+                bat 'docker-compose -p ontimetransit ps'
+                bat 'docker ps -a'
             }
         }
     }
@@ -90,14 +150,23 @@ pipeline {
         always {
             script {
                 try {
-                    bat 'docker-compose ps'
+                    bat 'docker-compose -p ontimetransit ps'
+                    bat 'docker ps -a'
+                    bat 'docker images'
                 } catch (Exception e) {
-                    echo "Docker compose ps failed: ${e.getMessage()}"
+                    echo "Docker status check failed: ${e.getMessage()}"
                 }
             }
         }
         failure {
             echo 'Pipeline failed! Check logs for details.'
+            script {
+                try {
+                    bat 'docker-compose -p ontimetransit logs --tail=50'
+                } catch (Exception e) {
+                    echo "Could not get docker logs: ${e.getMessage()}"
+                }
+            }
         }
         success {
             echo 'Pipeline completed successfully!'

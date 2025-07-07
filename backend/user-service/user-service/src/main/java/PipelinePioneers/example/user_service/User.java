@@ -2,7 +2,8 @@ package PipelinePioneers.example.user_service;
 
 import jakarta.persistence.*;
 
-@Entity@Table(name = "\"user\"") // Ensure this matches the table name in the database
+@Entity
+@Table(name = "\"user\"") // Ensure this matches the table name in the database
 
 public class User {
 
@@ -21,6 +22,9 @@ public class User {
     private String email;
 
     private String phoneNumber;
+
+    @Column(nullable = false)
+    private String role = "USER"; // Default role
 
     // Getters and Setters
     public Long getId() {
@@ -61,5 +65,13 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }
