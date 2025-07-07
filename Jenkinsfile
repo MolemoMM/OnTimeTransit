@@ -144,33 +144,45 @@ pipeline {
         stage('Build Java Services') {
             steps {
                 script {
-                    try {
-                        bat '''
+                    def services = [
+                        'user-service',
+                        'notification-service', 
+                        'analytics-service',
+                        'ticket-service',
+                        'route-service',
+                        'schedule-service'
+                    ]
+                    
+                    for (service in services) {
+                        echo "Building ${service}..."
+                        bat """
                             @echo off
-                            echo Building Java services with Maven Wrapper...
-                            cd backend\\user-service\\user-service && mvnw clean package -DskipTests
-                            cd ..\\..\\..\\backend\\notification-service\\notification-service && mvnw clean package -DskipTests
-                            cd ..\\..\\..\\backend\\analytics-service\\analytics-service && mvnw clean package -DskipTests
-                            cd ..\\..\\..\\backend\\ticket-service\\ticket-service && mvnw clean package -DskipTests
-                            cd ..\\..\\..\\backend\\route-service\\route-service && mvnw clean package -DskipTests
-                            cd ..\\..\\..\\backend\\schedule-service\\schedule-service && mvnw clean package -DskipTests
-                            echo All services built successfully
-                        '''
-                    } catch (Exception e) {
-                        echo "Maven Wrapper build failed: ${e.getMessage()}"
-                        echo "Trying with Maven..."
-                        bat '''
-                            @echo off
-                            echo Building Java services with Maven...
-                            cd backend\\user-service\\user-service && mvn clean package -DskipTests
-                            cd ..\\..\\..\\backend\\notification-service\\notification-service && mvn clean package -DskipTests
-                            cd ..\\..\\..\\backend\\analytics-service\\analytics-service && mvn clean package -DskipTests
-                            cd ..\\..\\..\\backend\\ticket-service\\ticket-service && mvn clean package -DskipTests
-                            cd ..\\..\\..\\backend\\route-service\\route-service && mvn clean package -DskipTests
-                            cd ..\\..\\..\\backend\\schedule-service\\schedule-service && mvn clean package -DskipTests
-                            echo All services built successfully with Maven
-                        '''
+                            echo ===== Building ${service} =====
+                            cd /d "%WORKSPACE%\\backend\\${service}\\${service}"
+                            echo Current directory: %CD%
+                            
+                            if exist mvnw.cmd (
+                                echo Using Maven Wrapper...
+                                call mvnw.cmd clean package -DskipTests
+                            ) else (
+                                echo Maven Wrapper not found, using Maven...
+                                call mvn clean package -DskipTests
+                            )
+                            
+                            if %errorlevel% neq 0 (
+                                echo ERROR: Build failed for ${service}
+                                exit /b 1
+                            )
+                            
+                            if exist target\\${service}-0.0.1-SNAPSHOT.jar (
+                                echo SUCCESS: ${service} JAR created successfully
+                            ) else (
+                                echo ERROR: ${service} JAR not found after build!
+                                exit /b 1
+                            )
+                        """
                     }
+                    echo "All services built successfully"
                 }
             }
         }
