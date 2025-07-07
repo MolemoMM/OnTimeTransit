@@ -196,27 +196,6 @@ pipeline {
             }
         }
 
-        stage('Health Check') {
-            steps {
-                script {
-                    bat '''
-                        @echo off
-                        echo Waiting for services to be ready...
-                        timeout /t 60 /nobreak
-                        
-                        echo Checking service health...
-                        curl -f http://localhost:8089/actuator/health || echo User service not ready
-                        curl -f http://localhost:8084/actuator/health || echo Route service not ready
-                        curl -f http://localhost:8085/actuator/health || echo Schedule service not ready
-                        curl -f http://localhost:8087/actuator/health || echo Ticket service not ready
-                        curl -f http://localhost:8083/actuator/health || echo Notification service not ready
-                        curl -f http://localhost:8086/actuator/health || echo Analytics service not ready
-                        echo Health check completed
-                    '''
-                }
-            }
-        }
-
         stage('Debug All Service Workspaces') {
             steps {
                 bat '''
