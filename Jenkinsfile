@@ -8,11 +8,6 @@ pipeline {
         // Define service list
         JAVA_SERVICES = 'user-service,notification-service,analytics-service,ticket-service,route-service,schedule-service'
     }
-    
-    triggers {
-        // Poll SCM every 2 minutes for changes
-        pollSCM('H/2 * * * *')
-    }
 
     stages {
         stage('Clean Workspace') {
