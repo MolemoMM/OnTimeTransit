@@ -141,6 +141,36 @@ pipeline {
             }
         }
 
+        stage('Fix Configuration Files') {
+            steps {
+                script {
+                    def services = [
+                        'user-service',
+                        'notification-service', 
+                        'analytics-service',
+                        'ticket-service',
+                        'route-service',
+                        'schedule-service'
+                    ]
+                    
+                    for (service in services) {
+                        echo "Checking configuration files for ${service}..."
+                        bat """
+                            @echo off
+                            cd /d "%WORKSPACE%\\backend\\${service}\\${service}\\src\\main\\resources"
+                            
+                            if exist applications.properties (
+                                echo Fixing filename: applications.properties -> application.properties for ${service}
+                                ren applications.properties application.properties
+                            ) else (
+                                echo Configuration file OK for ${service}
+                            )
+                        """
+                    }
+                }
+            }
+        }
+
         stage('Build Java Services') {
             steps {
                 script {
