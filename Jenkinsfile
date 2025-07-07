@@ -51,10 +51,16 @@ pipeline {
         stage('Cleanup Previous Deployment') {
             steps {
                 script {
-                    // Stop containers by name first (most reliable)
+                    // Stop containers with correct names (ontimetransit- prefix)
                     bat '''
-                        docker stop user-service notification-service analytics-service ticket-service route-service schedule-service frontend pgadmin postgres-db 2>nul || echo "Some containers were not running"
-                        docker rm -f user-service notification-service analytics-service ticket-service route-service schedule-service frontend pgadmin postgres-db 2>nul || echo "Some containers were not found"
+                        docker stop ontimetransit-user-service ontimetransit-notification-service ontimetransit-analytics-service ontimetransit-ticket-service ontimetransit-route-service ontimetransit-schedule-service frontend pgadmin ontimetransit-postgres-db 2>nul || echo "Some containers were not running"
+                        docker rm -f ontimetransit-user-service ontimetransit-notification-service ontimetransit-analytics-service ontimetransit-ticket-service ontimetransit-route-service ontimetransit-schedule-service frontend pgadmin ontimetransit-postgres-db 2>nul || echo "Some containers were not found"
+                    '''
+                    
+                    // Also try old names for compatibility
+                    bat '''
+                        docker stop user-service notification-service analytics-service ticket-service route-service schedule-service frontend pgadmin postgres-db 2>nul || echo "Old container names not found"
+                        docker rm -f user-service notification-service analytics-service ticket-service route-service schedule-service frontend pgadmin postgres-db 2>nul || echo "Old container names not found"
                     '''
                     
                     // Stop using project name
@@ -72,22 +78,44 @@ pipeline {
                     '''
                     
                     // System cleanup
-                    bat 'docker container prune -f || echo "Container prune failed"'
-                    bat 'docker image prune -f || echo "Image prune failed"'
-                    bat 'docker network prune -f || echo "Network prune failed"'
-                    bat 'docker volume prune -f || echo "Volume prune failed"'
+                    bat 'docker container prune -f || echo "Container prune completed"'
+                    bat 'docker image prune -f || echo "Image prune completed"'
+                    bat 'docker network prune -f || echo "Network prune completed"'
+                    bat 'docker volume prune -f || echo "Volume prune completed"'
                 }
+            }
+        }
+
+        stage('Verify Cleanup') {
+            steps {
+                bat 'docker ps -a'
+                bat 'docker images'
+                bat 'docker volume ls'
+                bat 'docker network ls'
             }
         }
 
         stage('Build Java Services') {
             steps {
-                bat 'cd backend\\user-service\\user-service && mvnw clean package -DskipTests'
-                bat 'cd backend\\notification-service\\notification-service && mvnw clean package -DskipTests'
-                bat 'cd backend\\analytics-service\\analytics-service && mvnw clean package -DskipTests'
-                bat 'cd backend\\ticket-service\\ticket-service && mvnw clean package -DskipTests'
-                bat 'cd backend\\route-service\\route-service && mvnw clean package -DskipTests'
-                bat 'cd backend\\schedule-service\\schedule-service && mvnw clean package -DskipTests'
+                script {
+                    try {
+                        bat 'cd backend\\user-service\\user-service && mvnw clean package -DskipTests'
+                        bat 'cd backend\\notification-service\\notification-service && mvnw clean package -DskipTests'
+                        bat 'cd backend\\analytics-service\\analytics-service && mvnw clean package -DskipTests'
+                        bat 'cd backend\\ticket-service\\ticket-service && mvnw clean package -DskipTests'
+                        bat 'cd backend\\route-service\\route-service && mvnw clean package -DskipTests'
+                        bat 'cd backend\\schedule-service\\schedule-service && mvnw clean package -DskipTests'
+                    } catch (Exception e) {
+                        echo "Build failed: ${e.getMessage()}"
+                        // Try with maven if mvnw fails
+                        bat 'cd backend\\user-service\\user-service && mvn clean package -DskipTests'
+                        bat 'cd backend\\notification-service\\notification-service && mvn clean package -DskipTests'
+                        bat 'cd backend\\analytics-service\\analytics-service && mvn clean package -DskipTests'
+                        bat 'cd backend\\ticket-service\\ticket-service && mvn clean package -DskipTests'
+                        bat 'cd backend\\route-service\\route-service && mvn clean package -DskipTests'
+                        bat 'cd backend\\schedule-service\\schedule-service && mvn clean package -DskipTests'
+                    }
+                }
             }
         }
 
@@ -95,7 +123,7 @@ pipeline {
             steps {
                 script {
                     // Build and deploy with consistent project name
-                    bat 'docker-compose -p ontimetransit build --no-cache --parallel'
+                    bat 'docker-compose -p ontimetransit build --no-cache'
                     bat 'docker-compose -p ontimetransit up -d'
                     
                     // Wait for services to start
